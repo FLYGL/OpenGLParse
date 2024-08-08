@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
 
+#include "loadTriangle.hpp"
 //glfw error callback
 void glfwErrorCallback(int error, const char* description)
 {
@@ -35,7 +36,7 @@ int main(int argc, char* argv)
     }
     glfwSetKeyCallback(pWindow, key_callback);
     glfwMakeContextCurrent(pWindow);
-    //TODO glew loadlib
+    //glew loadlib
     if(glewInit() != GLEW_OK)
     {
         glfwDestroyWindow(pWindow);
@@ -43,6 +44,22 @@ int main(int argc, char* argv)
         return -1;
     }
 
+    // prepare vertices data
+    std::string dumpPath = "";
+    std::vector<Triangle> triangles = loadTriangleVertices(dumpPath);
+    GLsizei uBufferSize = 1;
+    GLuint uBufferName = 0;
+    GLuint uVerticeName = 0;
+    glGenBuffers(uBufferSize, &uBufferName);
+    glGenVertexArrays(uBufferSize, &uVerticeName);
+    glBindVertexArray(uVerticeName);
+    glBindBuffer(GL_ARRAY_BUFFER, uBufferName);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle) * triangles.size(), triangles.data()->vertices.data(), GL_STATIC_DRAW);
+    //TODO loadShader
+
+    GLuint trianglesVerticesLocation = 0;
+    GLint pointCompNum = 3;
+    
     while (!glfwWindowShouldClose(pWindow))
     {
         // Keep running
@@ -50,6 +67,12 @@ int main(int argc, char* argv)
         // glfwGetFramebufferSize(pWindow, &width, &height);
         // glViewport(0, 0, width, height);
         // double passTime = glfwGetTime();
+        glEnableVertexAttribArray(trianglesVerticesLocation);
+        //describe how to read vertex buffer object(vbo)
+        glVertexAttribPointer(trianglesVerticesLocation, pointCompNum, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+        glDisableVertexAttribArray(trianglesVerticesLocation);
 
         glfwSwapBuffers(pWindow);
         glfwPollEvents();
