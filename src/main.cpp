@@ -121,7 +121,7 @@ int main(int argc, char* argv)
     glBindBuffer(GL_ARRAY_BUFFER, uBufferName);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle) * triangles.size(), triangles.data()->vertices.data(), GL_STATIC_DRAW);
     //loadShader
-    GLuint program = LoadProgram("E:\\shanghai\\OpenGLParse\\resource\\Shader\\easy.vertex", "E:\\shanghai\\OpenGLParse\\resource\\Shader\\easy.fragment");
+    GLuint program = LoadProgram("resource/Shader/easy.vertex", "resource/Shader/easy.fragment");
     JUMP_IF_FAIL(program > 0);
 
     glUseProgram(program);
