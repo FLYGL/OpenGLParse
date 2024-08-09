@@ -1,12 +1,13 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <GL/glew.h>
 
 struct Point
 {
-    float x = 0;
-    float y = 0;
-    float z = 0;
+    GLfloat x = 0;
+    GLfloat y = 0;
+    GLfloat z = 0;
 };
 
 struct Triangle

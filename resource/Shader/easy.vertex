@@ -1,0 +1,6 @@
+#version 330 core
+layout(location = 0) in vec3 vertexPositon;
+void main()
+{
+	gl_Position = vec4(vertexPositon, 1.0);
+}
