@@ -121,7 +121,7 @@ int main(int argc, char* argv)
     glBindBuffer(GL_ARRAY_BUFFER, uBufferName);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle) * triangles.size(), triangles.data()->vertices.data(), GL_STATIC_DRAW);
     //loadShader
-    GLuint program = LoadProgram("E:\\openglparse\\resource\\Shader\\easy.vertex", "E:\\openglparse\\resource\\Shader\\easy.fragment");
+    GLuint program = LoadProgram("E:\\shanghai\\OpenGLParse\\resource\\Shader\\easy.vertex", "E:\\shanghai\\OpenGLParse\\resource\\Shader\\easy.fragment");
     JUMP_IF_FAIL(program > 0);
 
     glUseProgram(program);
@@ -136,7 +136,8 @@ int main(int argc, char* argv)
         //describe how to read vertex buffer object(vbo)
         glVertexAttribPointer(trianglesVerticesLocation, pointCompNum, GL_FLOAT, GL_FALSE, 0, 0);
 
-        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+        //third params meaning : vertex count
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size() * sizeof(Triangle::vertices));
         glDisableVertexAttribArray(trianglesVerticesLocation);
 
         glfwSwapBuffers(pWindow);

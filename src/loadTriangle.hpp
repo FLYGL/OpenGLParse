@@ -13,6 +13,12 @@ struct Point
 struct Triangle
 {
     std::array<Point, 3> vertices;
+    Triangle(Point a, Point b, Point c)
+    {
+        vertices[0] = a;
+        vertices[1] = b;
+        vertices[2] = c;
+    }
 };
 
 std::vector<Triangle> loadTriangleVertices(const std::string& vertexPath);
