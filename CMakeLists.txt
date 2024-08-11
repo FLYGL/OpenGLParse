@@ -6,8 +6,8 @@ project(OpenGLParse)
 add_subdirectory(./external)
 
 
-file(GLOB cppResource "src/*.cpp" "src/framework/*.cpp")
-set(cppHeader "./external/glfw/include" "./external/glew/include")
+file(GLOB cppResource "src/*.cpp" "src/framework/*.cpp" "src/featureLab/*.cpp")
+set(cppHeader "./external/glfw/include" "./external/glew/include" "./src")
 add_executable(OpenGLSandbox ${cppResource})
 target_include_directories(OpenGLSandbox PRIVATE ${cppHeader})
 target_link_libraries(OpenGLSandbox opengl32.lib glfw glew_s)
