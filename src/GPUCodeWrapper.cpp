@@ -35,7 +35,7 @@ ShaderContext ShaderWrapper::CreateShaderContextByCodePath(GLenum eShaderType, c
     if (!nShaderStatus)
     {
         GLsizei nValidLength = 0;
-        glGetShaderInfoLog(uShaderName, gs_errLog.size(), &nValidLength, (GLchar*)gs_errLog.data());
+        glGetShaderInfoLog(uShaderName, static_cast<GLsizei>(gs_errLog.size()), &nValidLength, (GLchar*)gs_errLog.data());
         gs_errLog.resize(nValidLength);
         JUMP_IF_FAIL(false);
     }
