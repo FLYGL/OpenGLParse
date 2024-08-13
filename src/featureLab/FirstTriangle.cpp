@@ -5,7 +5,7 @@
 #include <vector>
 #include <assert.h>
 
-#include "LoadTriangle.hpp"
+#include "geometry/baseGeometry.hpp"
 #include "GPUCodeWrapper.hpp"
 
 struct FirstTriangleContext

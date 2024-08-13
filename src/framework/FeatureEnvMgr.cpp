@@ -16,6 +16,7 @@ public:
 	//no init and uninit
 	bool AddFeatureFunc(FeatureFunc);
 	bool RunAllFeatures();
+	bool ClearAllFeatureFunc();
 public:
 	static FeatureMgr* CreateInstance();
 private:
@@ -28,6 +29,8 @@ static FeatureMgr& GetFeatureMgr()
 	static FeatureMgr s_featureMgr;
 	return s_featureMgr;
 }
+
+bool s_bUniqueFrameFeatureTestOpen = false;
 static FeatureMgr& GetFrameFeatureMgr()
 {
 	static FeatureMgr s_frameFeatureMgr;
@@ -37,6 +40,12 @@ static FeatureMgr& GetFrameFeatureMgr()
 bool FeatureMgr::AddFeatureFunc(FeatureFunc featureFunc)
 {
 	m_registeredFeatures.emplace_back(featureFunc);
+	return true;
+}
+
+bool FeatureMgr::ClearAllFeatureFunc()
+{
+	m_registeredFeatures.clear();
 	return true;
 }
 
@@ -62,6 +71,17 @@ void* _registerFeaturetest(FeatureFunc featureFunc)
 
 void* _registerFrameFeaturetest(FeatureFunc featureFunc)
 {
+	if (!s_bUniqueFrameFeatureTestOpen)
+	{
+		GetFrameFeatureMgr().AddFeatureFunc(featureFunc);
+	}
+	return (void*)0;
+}
+
+void* _registerUniqueFrameFeaturetest(FeatureFunc featureFunc)
+{
+	s_bUniqueFrameFeatureTestOpen = true;
+	GetFrameFeatureMgr().ClearAllFeatureFunc();
 	GetFrameFeatureMgr().AddFeatureFunc(featureFunc);
 	return (void*)0;
 }

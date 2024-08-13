@@ -22,3 +22,4 @@ struct Triangle
 };
 
 std::vector<Triangle> loadTriangleVertices(const std::string& vertexPath);
+std::vector<Triangle> MakeCubeTriangles(const Point& min, const Point& max);
