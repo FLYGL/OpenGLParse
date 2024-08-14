@@ -9,3 +9,6 @@ add_subdirectory(glfw)
 #glew
 set(BUILD_UTILS OFF)
 add_subdirectory(glew/build/cmake)
+
+#glm
+add_subdirectory(glm)

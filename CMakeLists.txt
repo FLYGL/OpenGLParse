@@ -6,11 +6,16 @@ project(OpenGLParse)
 add_subdirectory(./external)
 
 
-file(GLOB cppResource "src/*.cpp" "src/framework/*.cpp" "src/featureLab/*.cpp" "src/geometry/*.cpp")
-set(cppHeader "./external/glfw/include" "./external/glew/include" "./src")
+file(GLOB_RECURSE cppResource "src/*.cpp")
+set(cppHeader 
+    "./src"
+    "./external/glfw/include" 
+    "./external/glew/include" 
+    "./external/glm" 
+)
 add_executable(OpenGLSandbox ${cppResource})
 target_include_directories(OpenGLSandbox PRIVATE ${cppHeader})
-target_link_libraries(OpenGLSandbox opengl32.lib glfw glew_s)
+target_link_libraries(OpenGLSandbox opengl32.lib glfw glew_s glm)
 
 if (WIN32)
     set(TARGET_DIR ${CMAKE_SOURCE_DIR}/resource)

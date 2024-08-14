@@ -7,6 +7,8 @@
 #include "geometry/baseGeometry.hpp"
 #include "GPUCodeWrapper.hpp"
 
+#include "glm/glm.hpp"
+
 struct CubeDrawContext
 {
     //mesh data
@@ -18,6 +20,9 @@ struct CubeDrawContext
 
     //cube shader program
     GLuint program;
+
+    //glm
+    glm::mat<4, 4, GLfloat> helloGlmMat;
 
     bool inited = false;
 };
