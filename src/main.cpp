@@ -39,10 +39,11 @@ int main(int argc, char* argv)
     bRetCode = glewInit() == GLEW_OK;
     JUMP_IF_FAIL(bRetCode);
 
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     FeatureEnvWrapper::RunFeatures();
     while (!glfwWindowShouldClose(pWindow))
     {
-        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
         FeatureEnvWrapper::RunFrameFeatures();
         glfwSwapBuffers(pWindow);
         glfwPollEvents();
