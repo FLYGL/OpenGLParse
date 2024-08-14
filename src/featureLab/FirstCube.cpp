@@ -55,7 +55,7 @@ void InitCubeDrawContext()
     gs_cubeDrawContext.triangles = std::move(cubeTriangles);
     gs_cubeDrawContext.vertexObjName = cubeVertexName;
     gs_cubeDrawContext.vertexObjBuffer = cubeBufferName;
-    gs_cubeDrawContext.program = ProgramWrapper::CreateProgramByCodePath("resource/Shader/cube.vertex", "resource/Shader/easy.fragment");
+    gs_cubeDrawContext.program = ProgramWrapper::CreateProgramByCodePath("resource/Shader/easy.vertex", "resource/Shader/easy.fragment");
     JUMP_IF_FAIL(gs_cubeDrawContext.program > 0);
 
     //init worldPositionMat4
