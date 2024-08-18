@@ -6,11 +6,22 @@
 #include <chrono>
 
 #include "component/CameraComponent.hpp"
+#include "component/InputComponent.hpp"
 #include "geometry/baseGeometry.hpp"
 #include "GPUCodeWrapper.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+struct CubeDrawContext;
+//TODO control implement
+//1. move speed
+//2. w a s d keydown
+//3. cursor
+void ControlInputCallback(int nKey, int nAction, void* pContext)
+{
+    CubeDrawContext* pDrawContext = reinterpret_cast<CubeDrawContext*>(pContext);
+    std::cout << nKey << " " << nAction << std::endl;
+}
 
 //TODO check difference between vao and vbo
 struct CubeDrawContext
@@ -32,7 +43,12 @@ struct CubeDrawContext
     glm::mat<4, 4, GLfloat> perspectiveMat4;
     //component
     CameraComponent cubeCamera;
+    InputComponent inputCamera;
     bool inited = false;
+
+    CubeDrawContext() : 
+        inputCamera{ ControlInputCallback , this}
+    {}
 };
 
 CubeDrawContext gs_cubeDrawContext;
@@ -88,7 +104,7 @@ void UpdateRotation()
     s_lastTime = curTime;
 
     gs_cubeDrawContext.localRotateMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(curYDegree), glm::vec3{ 0, 1, 0 });
-    //gs_cubeDrawContext.localRotateMat4 = glm::identity<glm::mat4>();
+    gs_cubeDrawContext.cubeCamera.GenrateViewMatrix(gs_cubeDrawContext.viewMat4);
 }
 
 void DoTransform()

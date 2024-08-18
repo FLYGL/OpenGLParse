@@ -1,5 +1,6 @@
 #include "framework/EasyDefine.hpp"
 #include "framework/FeatureEnvMgr.hpp"
+#include "framework/InputManager.hpp"
 #include <iostream>
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
@@ -16,6 +17,7 @@ static void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int acti
     {
         glfwSetWindowShouldClose(pWindow, GLFW_TRUE);
     }
+    InputManager::FireInputCallback(key, action);
 }
 
 static void glfwResizeCallback(GLFWwindow* pWindow, int nWidth, int nHeight)

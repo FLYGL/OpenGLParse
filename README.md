@@ -7,3 +7,4 @@
 2. camera class
 3. world render context wrapper
 4. glviewport
+5. global instance manager to resolve undefined init unint order
