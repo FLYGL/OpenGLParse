@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 
+#include "component/CameraComponent.hpp"
 #include "geometry/baseGeometry.hpp"
 #include "GPUCodeWrapper.hpp"
 
@@ -25,12 +26,12 @@ struct CubeDrawContext
     GLuint program;
 
     //glm
-    glm::mat<4,4,GLfloat> worldPositionMat4;
-    glm::mat<4,4,GLfloat> localRotateMat4;
-    glm::mat<4,4,GLfloat> viewMat4;
-    glm::mat<4,4,GLfloat> perspectiveMat4;
-    glm::mat<4,4,GLfloat> viewportMat4;
-
+    glm::mat<4, 4, GLfloat> worldPositionMat4;
+    glm::mat<4, 4, GLfloat> localRotateMat4;
+    glm::mat<4, 4, GLfloat> viewMat4;
+    glm::mat<4, 4, GLfloat> perspectiveMat4;
+    //component
+    CameraComponent cubeCamera;
     bool inited = false;
 };
 
@@ -61,7 +62,8 @@ void InitCubeDrawContext()
     //init worldPositionMat4
     gs_cubeDrawContext.worldPositionMat4 = glm::identity<glm::mat4>();
     //init viewMat4 and perspectiveMat4
-    gs_cubeDrawContext.viewMat4 = glm::lookAtLH<GLfloat>(glm::vec3{ 0, 0, -10 }, glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 });
+    gs_cubeDrawContext.cubeCamera.SetPosition({0, 0, -10});
+    gs_cubeDrawContext.cubeCamera.GenrateViewMatrix(gs_cubeDrawContext.viewMat4);
     gs_cubeDrawContext.perspectiveMat4 = glm::perspectiveLH<GLfloat>(glm::radians(45.0f), 1.0f, 0.5f, 20.0f);
     
     gs_cubeDrawContext.inited = true;
