@@ -154,7 +154,7 @@ FAIL_STATE:
 void PrepareSetOpenGLContextState()
 {
     glEnable(GL_DEPTH_CLAMP);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
