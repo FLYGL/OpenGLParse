@@ -19,11 +19,23 @@ public:
     void AddDeltaXDegree(glm::float32);
     void AddDeltaYDegree(glm::float32);
     void AddDeltaPosition(const glm::vec3&);
-
     //apply order :  xdegree, ydegree, position
+    //left hand
     void GenrateViewMatrix(OUT glm::mat4&);
+
+    void SetFrustum(glm::float32 fFovYDegree, glm::float32 fAspect, glm::float32 fNear, glm::float32 fFar);
+    //without divided by w
+    //left hand
+    void GenratePerspectiveMatrix(OUT glm::mat4&);
 private:
+    //view params
     glm::float32 m_rotatedXDegree;
     glm::float32 m_rotatedYDegree;
     glm::vec3 m_cameraPosition;
+    //frustum params
+    glm::float32 m_fovyDegree;
+    //aspect = x/y
+    glm::float32 m_aspect;
+    glm::float32 m_nearDistance;
+    glm::float32 m_farDistance;
 };

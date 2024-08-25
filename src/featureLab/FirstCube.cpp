@@ -78,10 +78,12 @@ void InitCubeDrawContext()
     //init worldPositionMat4
     gs_cubeDrawContext.worldPositionMat4 = glm::identity<glm::mat4>();
     //init viewMat4 and perspectiveMat4
-    gs_cubeDrawContext.cubeCamera.SetPosition({0, 0, -10});
+    gs_cubeDrawContext.cubeCamera.SetPosition({ 0, 0, -10 });
+    gs_cubeDrawContext.cubeCamera.SetXDegree(45.0f);
     gs_cubeDrawContext.cubeCamera.GenrateViewMatrix(gs_cubeDrawContext.viewMat4);
-    gs_cubeDrawContext.perspectiveMat4 = glm::perspectiveLH<GLfloat>(glm::radians(45.0f), 1.0f, 0.5f, 20.0f);
-    
+    gs_cubeDrawContext.cubeCamera.SetFrustum(45.0f, 1.0f, 0.5f, 20.0f);
+    gs_cubeDrawContext.cubeCamera.GenratePerspectiveMatrix(gs_cubeDrawContext.perspectiveMat4);
+
     gs_cubeDrawContext.inited = true;
 FAIL_STATE:
     DO_NOTHING();
