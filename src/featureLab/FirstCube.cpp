@@ -262,7 +262,8 @@ void DoCubeTransform()
         {
             Point& tranformedPoint = tranformedVertices[vertexIndex++];
             glm::vec4 tranformedGlmPoint = transformMat * glm::vec4(point.x, point.y, point.z, 1);
-            tranformedGlmPoint = glm::normalize(tranformedGlmPoint);
+            // perspective division
+            tranformedGlmPoint /= tranformedGlmPoint.w;
             tranformedPoint.x = tranformedGlmPoint.x;
             tranformedPoint.y = tranformedGlmPoint.y;
             tranformedPoint.z = tranformedGlmPoint.z;
