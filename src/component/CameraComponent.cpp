@@ -2,7 +2,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 CameraComponent::CameraComponent() : 
-    m_rotatedXDegree{0.0f}, m_rotatedYDegree{0.0f}, m_cameraPosition{0.0f, 0.0f, 0.0f}
+    m_rotatedXDegree{0.0f}, m_rotatedYDegree{0.0f}, m_cameraPosition{0.0f, 0.0f, 0.0f},
+    m_fovyDegree{0.0f}, m_aspect{0.0f}, m_nearDistance{0.0f}, m_farDistance{0.0f}
 {}
 
 void CameraComponent::SetXDegree(glm::float32 newXDegree)
@@ -23,6 +24,8 @@ void CameraComponent::SetPosition(const glm::vec3& newPosition)
 void CameraComponent::AddDeltaXDegree(glm::float32 deltaXDegree)
 {
     m_rotatedXDegree += deltaXDegree;
+    m_rotatedXDegree = std::max(m_rotatedXDegree, -90.0f);
+    m_rotatedXDegree = std::min(m_rotatedXDegree, 90.0f);
 }
 
 void CameraComponent::AddDeltaYDegree(glm::float32 deltaYDegree)
@@ -39,10 +42,34 @@ void CameraComponent::GenrateViewMatrix(OUT glm::mat4& outMat4)
 {
     //tranlate tranpose first
     outMat4 =  glm::translate(glm::identity<glm::mat4>(), -m_cameraPosition);
+    //rotate
+    glm::float32 rotateRadians;
+    glm::float32 cos;
+    glm::float32 sin;
     //y tranpose
-    outMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(-m_rotatedYDegree) , glm::vec3{0, 1, 0}) * outMat4;
+    //from x -> z counterClock
+    glm::mat4 rotateYMatrix = glm::identity<glm::mat4>();
+    rotateRadians = glm::radians(-m_rotatedYDegree);
+    cos = glm::cos(rotateRadians);
+    sin = glm::sin(rotateRadians);
+    rotateYMatrix[0][0] = cos;
+    rotateYMatrix[0][2] = sin;
+    rotateYMatrix[2][0] = -sin;
+    rotateYMatrix[2][2] = cos;
+
+    outMat4 = rotateYMatrix * outMat4;
     //x tranpose
-    outMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(-m_rotatedXDegree), glm::vec3{1, 0, 0}) * outMat4;
+    //from z -> y counterClock
+    glm::mat4 rotateXMatrix = glm::identity<glm::mat4>();
+    rotateRadians = glm::radians(-m_rotatedXDegree);
+    cos = glm::cos(rotateRadians);
+    sin = glm::sin(rotateRadians);
+    rotateXMatrix[1][1] = cos;
+    rotateXMatrix[1][2] = -sin;
+    rotateXMatrix[2][1] = sin;
+    rotateXMatrix[2][2] = cos;
+
+    outMat4 = rotateXMatrix * outMat4;
 }
 
 void CameraComponent::SetFrustum(glm::float32 fFovYDegree, glm::float32 fAspect, glm::float32 fNear, glm::float32 fFar)

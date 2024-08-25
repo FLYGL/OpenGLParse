@@ -1,6 +1,8 @@
 #include <framework/EasyDefine.hpp>
 #include <framework/FeatureEnvMgr.hpp>
 #include <framework/GlobalInstanceManager.hpp>
+#include <framework/WindowManager.hpp>
+#include <glfw/glfw3.h>
 
 #include <iostream>
 #include <vector>
@@ -13,17 +15,10 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-struct CubeDrawContext;
-//TODO control implement
-//1. move speed
-//2. w a s d keydown
-//3. cursor
-void ControlInputCallback(int nKey, int nAction, void* pContext)
-{
-    CubeDrawContext* pDrawContext = reinterpret_cast<CubeDrawContext*>(pContext);
-    std::cout << nKey << " " << nAction << std::endl;
-}
-
+#include "glm/gtc/epsilon.hpp"
+#define GLFW_KEY_NONE -1
+static void CubeKeyInputCallback(int nKey, int nAction, void* pContext);
+static void CubeMousemoveCallback(double fXPos, double fYPos, void* pContext);
 //TODO check difference between vao and vbo
 struct CubeDrawContext
 {
@@ -33,10 +28,8 @@ struct CubeDrawContext
     GLuint vertexObjName;
     //vbo
     GLuint vertexObjBuffer;
-
     //cube shader program
     GLuint program;
-
     //glm
     glm::mat<4, 4, GLfloat> worldPositionMat4;
     glm::mat<4, 4, GLfloat> localRotateMat4;
@@ -45,14 +38,67 @@ struct CubeDrawContext
     //component
     CameraComponent cubeCamera;
     InputComponent inputCamera;
+    //record mousedeltapos
+    double mouseXDelta;
+    double mouseYDelta;
+    bool isMousemove;
+    //record keydown
+    int inputKey;
+    //move
+    glm::float32 moveSpeed;
+    glm::float32 rotateSpeed;
+    //timestamp
+    std::chrono::steady_clock::time_point lastTime;
+    std::chrono::milliseconds deltaTime;
+    WindowState windowState;
+
     bool inited = false;
 
-    CubeDrawContext() : 
-        inputCamera{ ControlInputCallback , this}
+    CubeDrawContext() :
+        inputCamera{ CubeKeyInputCallback , CubeMousemoveCallback, this }
     {}
 };
 
 CubeDrawContext& gs_cubeDrawContext = InstanceManager::GetInstanceManager().RegisterIntance< CubeDrawContext>();
+
+static void CubeKeyInputCallback(int nKey, int nAction, void* pContext)
+{
+    CubeDrawContext* pDrawContext = reinterpret_cast<CubeDrawContext*>(pContext);
+    switch (nAction)
+    {
+        case GLFW_PRESS:
+            pDrawContext->inputKey = nKey;
+            break;
+        case GLFW_RELEASE:
+            pDrawContext->inputKey = GLFW_KEY_NONE;
+        default:
+            break;
+    }
+}
+
+//upper-left
+static void CubeMousemoveCallback(double fXPos, double fYPos, void* pContext)
+{
+    CubeDrawContext* pDrawContext = reinterpret_cast<CubeDrawContext*>(pContext);
+    double centerWidth = static_cast<double>(pDrawContext->windowState.nWindowWidth / 2);
+    double centerHeight = static_cast<double>(pDrawContext->windowState.nWindowHeight / 2);
+    pDrawContext->mouseXDelta = fXPos - centerWidth;
+    pDrawContext->mouseYDelta = fYPos - centerHeight;
+    pDrawContext->isMousemove = true;
+    WindowManager::GetInstance().SetMousePosition(centerWidth, centerHeight);
+}
+
+static void WindowResizeCallback(int nWidth, int nHeight)
+{
+    gs_cubeDrawContext.windowState.nWindowWidth = nWidth;
+    gs_cubeDrawContext.windowState.nWindowHeight = nHeight;
+}
+
+static void FrameResizeCallback(int nWidth, int nHeight)
+{
+    gs_cubeDrawContext.windowState.nFrameBufferWidth = nWidth;
+    gs_cubeDrawContext.windowState.nFrameBufferHeight = nHeight;
+}
 
 void InitCubeDrawContext()
 {
@@ -80,10 +126,25 @@ void InitCubeDrawContext()
     gs_cubeDrawContext.worldPositionMat4 = glm::identity<glm::mat4>();
     //init viewMat4 and perspectiveMat4
     gs_cubeDrawContext.cubeCamera.SetPosition({ 0, 0, -10 });
-    gs_cubeDrawContext.cubeCamera.SetXDegree(45.0f);
     gs_cubeDrawContext.cubeCamera.GenrateViewMatrix(gs_cubeDrawContext.viewMat4);
     gs_cubeDrawContext.cubeCamera.SetFrustum(45.0f, 1.0f, 0.5f, 20.0f);
     gs_cubeDrawContext.cubeCamera.GenratePerspectiveMatrix(gs_cubeDrawContext.perspectiveMat4);
+    
+    gs_cubeDrawContext.lastTime = std::chrono::high_resolution_clock::now();
+    gs_cubeDrawContext.deltaTime = std::chrono::milliseconds(0);
+
+    gs_cubeDrawContext.moveSpeed = 10.0f;
+    gs_cubeDrawContext.rotateSpeed = 90.0f;
+
+    //control,need reset every frame
+    gs_cubeDrawContext.mouseXDelta = 0.0f;
+    gs_cubeDrawContext.mouseYDelta = 0.0f;
+    gs_cubeDrawContext.isMousemove = false;
+    //don't to reset
+    gs_cubeDrawContext.inputKey = GLFW_KEY_NONE;
+
+    WindowManager::GetInstance().GetWindowState(gs_cubeDrawContext.windowState);
+    WindowManager::GetInstance().RegisterWindowCallback(WindowResizeCallback, FrameResizeCallback);
 
     gs_cubeDrawContext.inited = true;
 FAIL_STATE:
@@ -92,25 +153,103 @@ FAIL_STATE:
 
 void PrepareSetOpenGLContextState()
 {
+    glEnable(GL_DEPTH_CLAMP);
+    //glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-void UpdateRotation()
+void BaseContextUpdate()
 {
-    static float curYDegree = 0.0f;
-    static float rotateYDegreePerSecond = 30.0f;
-    static auto s_lastTime = std::chrono::high_resolution_clock::now();
-
+    //TimeUpdate
     auto curTime = std::chrono::high_resolution_clock::now();
-    auto delatTime = std::chrono::duration_cast<std::chrono::milliseconds>(curTime - s_lastTime);
-    curYDegree += static_cast<float>(delatTime.count()) * rotateYDegreePerSecond / 1000;
-    s_lastTime = curTime;
+    gs_cubeDrawContext.deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(curTime - gs_cubeDrawContext.lastTime);
+    gs_cubeDrawContext.lastTime = curTime;
+}
 
-    gs_cubeDrawContext.localRotateMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(curYDegree), glm::vec3{ 0, 1, 0 });
+void UpdateCamera()
+{
+    //key control
+    //in the world coordinate movement
+    glm::vec4 moveDirection = glm::zero<glm::vec4>();
+    switch (gs_cubeDrawContext.inputKey)
+    {
+        case GLFW_KEY_NONE:
+            break;
+        case GLFW_KEY_D:
+        case GLFW_KEY_RIGHT:
+            //move down the x
+            moveDirection = gs_cubeDrawContext.viewMat4[0];
+            break;
+        case GLFW_KEY_SPACE:
+            //move down the y
+            moveDirection = gs_cubeDrawContext.viewMat4[1];
+            break;
+        case GLFW_KEY_W:
+        case GLFW_KEY_UP:
+            //move down the z
+            moveDirection = gs_cubeDrawContext.viewMat4[2];
+            break;
+        case GLFW_KEY_A:
+        case GLFW_KEY_LEFT:
+            moveDirection = -gs_cubeDrawContext.viewMat4[0];
+            break;
+        case GLFW_KEY_LEFT_SHIFT:
+            moveDirection = -gs_cubeDrawContext.viewMat4[1];
+            break;
+        case GLFW_KEY_S:
+        case GLFW_KEY_DOWN:
+            moveDirection = -gs_cubeDrawContext.viewMat4[2];
+        default:
+            break;
+    }
+    if (gs_cubeDrawContext.inputKey != GLFW_KEY_NONE)
+    {
+        moveDirection[3] = 0;
+        moveDirection = glm::normalize(moveDirection);
+        gs_cubeDrawContext.cubeCamera.AddDeltaPosition(moveDirection * gs_cubeDrawContext.moveSpeed * static_cast<glm::float32>(gs_cubeDrawContext.deltaTime.count()) / 1000.0f);
+    }
+
+    //mouse control
+    //view rotate
+    if (gs_cubeDrawContext.isMousemove)
+    {
+        glm::float32 deltaXDegree = gs_cubeDrawContext.rotateSpeed * static_cast<glm::float32>(gs_cubeDrawContext.deltaTime.count()) / 1000.0f;
+        glm::float32 deltaYDegree = deltaXDegree;
+        //fixed rotate even different delta
+        
+        //rotate Y
+        if (glm::epsilonNotEqual<double>(gs_cubeDrawContext.mouseXDelta, 0.0, 0.01))
+        {
+            //counterclock
+            deltaYDegree = gs_cubeDrawContext.mouseXDelta < 0 ? deltaYDegree : -deltaYDegree;
+            gs_cubeDrawContext.cubeCamera.AddDeltaYDegree(deltaYDegree);
+        }
+        //rotate X
+        if (glm::epsilonNotEqual<double>(gs_cubeDrawContext.mouseYDelta, 0.0, 0.01))
+        {
+            deltaXDegree = gs_cubeDrawContext.mouseYDelta < 0 ? deltaXDegree : -deltaXDegree;
+            gs_cubeDrawContext.cubeCamera.AddDeltaXDegree(deltaXDegree);
+        }
+
+        gs_cubeDrawContext.mouseXDelta = 0.0f;
+        gs_cubeDrawContext.mouseYDelta = 0.0f;
+        gs_cubeDrawContext.isMousemove = false;
+    }
+
     gs_cubeDrawContext.cubeCamera.GenrateViewMatrix(gs_cubeDrawContext.viewMat4);
 }
 
-void DoTransform()
+void UpdateCubeRotation()
+{
+    static float curYDegree = 0.0f;
+    static float rotateYDegreePerSecond = 30.0f;
+    
+    auto& delatTime = gs_cubeDrawContext.deltaTime;
+    curYDegree += static_cast<float>(delatTime.count()) * rotateYDegreePerSecond / 1000;
+    gs_cubeDrawContext.localRotateMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(curYDegree), glm::vec3{ 0, 1, 0 });
+}
+
+void DoCubeTransform()
 {
     std::vector<Point> tranformedVertices;
     tranformedVertices.resize(gs_cubeDrawContext.triangles.size() * sizeof(Triangle::vertices));
@@ -152,8 +291,10 @@ void FirstCube()
         InitCubeDrawContext();
     }
     PrepareSetOpenGLContextState();
-    UpdateRotation();
-    DoTransform();
+    BaseContextUpdate();
+    UpdateCamera();
+    UpdateCubeRotation();
+    DoCubeTransform();
     DrawCube();
 }
 

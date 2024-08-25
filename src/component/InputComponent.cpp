@@ -1,8 +1,8 @@
 #include "InputComponent.hpp"
 
-InputComponent::InputComponent(InputCallback pCallback, void* pContext) : m_uUniqueId {0}
+InputComponent::InputComponent(KeyInputCallback pKeyInputCallback, MousemoveCallback pMousemoveCallback, void* pContext) : m_uUniqueId {0}
 {
-    m_uUniqueId = InputManager::RegisterInputCallback(pCallback, pContext);
+    m_uUniqueId = InputManager::RegisterInputCallback(pKeyInputCallback, pMousemoveCallback, pContext);
 }
 
 InputComponent::~InputComponent()

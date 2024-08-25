@@ -3,7 +3,7 @@
 class InputComponent
 {
 public:
-    InputComponent(InputCallback, void*);
+    InputComponent(KeyInputCallback, MousemoveCallback, void*);
     ~InputComponent();
 private:
     size_t m_uUniqueId;

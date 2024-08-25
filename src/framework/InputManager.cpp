@@ -7,12 +7,12 @@ InputManager& InputManager::GetInstance()
     return s_instance;
 }
 
-size_t InputManager::RegisterInputCallback(InputCallback pCallback, void* pContext)
+size_t InputManager::RegisterInputCallback(KeyInputCallback pKeyInputCallback, MousemoveCallback pMousemoveCallback, void* pContext)
 {
     
-    if (pCallback)
+    if (pKeyInputCallback)
     {
-        GetInstance().m_registeredCallback.emplace_back(++GetInstance().m_uUniqueId, pCallback, pContext);
+        GetInstance().m_registeredCallback.emplace_back(++GetInstance().m_uUniqueId, pKeyInputCallback, pMousemoveCallback, pContext);
         return GetInstance().m_uUniqueId;
     }
     return 0;
@@ -34,10 +34,20 @@ void InputManager::UnRegisterInputCallback(size_t uUniqueId)
     }
 }
 
-void InputManager::FireInputCallback(int nKey, int nAction)
+void InputManager::FireKeyInputCallback(int nKey, int nAction)
 {
     for (InputCallbackInfo& rCallbackInfo : GetInstance().m_registeredCallback)
     {
-        rCallbackInfo.pCallback(nKey, nAction, rCallbackInfo.pContext);
+        if(rCallbackInfo.pKeyInputCallback)
+            rCallbackInfo.pKeyInputCallback(nKey, nAction, rCallbackInfo.pContext);
+    }
+}
+
+void InputManager::FireMousemoveCallback(double xpos, double ypos)
+{
+    for (InputCallbackInfo& rCallbackInfo : GetInstance().m_registeredCallback)
+    {
+        if (rCallbackInfo.pMousemoveCallback)
+            rCallbackInfo.pMousemoveCallback(xpos, ypos, rCallbackInfo.pContext);
     }
 }

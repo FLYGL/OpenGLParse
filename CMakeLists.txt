@@ -14,6 +14,7 @@ set(cppHeader
     "./external/glm" 
 )
 add_executable(OpenGLSandbox ${cppResource})
+target_compile_definitions(OpenGLSandbox PRIVATE GLFW_INCLUDE_NONE)
 target_include_directories(OpenGLSandbox PRIVATE ${cppHeader})
 target_link_libraries(OpenGLSandbox opengl32.lib glfw glew_s glm)
 

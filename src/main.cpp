@@ -1,6 +1,7 @@
-#include "framework/EasyDefine.hpp"
-#include "framework/FeatureEnvMgr.hpp"
-#include "framework/InputManager.hpp"
+#include <framework/EasyDefine.hpp>
+#include <framework/FeatureEnvMgr.hpp>
+#include <framework/WindowManager.hpp>
+#include <framework/InputManager.hpp>
 #include <iostream>
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
@@ -8,20 +9,34 @@
 //glfw error callback
 static void glfwErrorCallback(int error, const char* description)
 {
-    fprintf(stderr, "Error: %s\n", description);
+    fprintf(stderr, "GLFW-Error: %s\n", description);
 }
 
+//glew keydown(not include mousebutton)
 static void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
 {
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(pWindow, GLFW_TRUE);
     }
-    InputManager::FireInputCallback(key, action);
+    InputManager::FireKeyInputCallback(key, action);
+}
+//glew mousemove
+static void glfwMousemoveCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    InputManager::FireMousemoveCallback(xpos, ypos);
 }
 
+//window resize
+static void glfwWindowResizeCallback(GLFWwindow* window, int nWidth, int nHeight)
+{
+    WindowManager::WindowResize(nWidth, nHeight);
+}
+
+//framebuffer resize
 static void glfwResizeCallback(GLFWwindow* pWindow, int nWidth, int nHeight)
 {
+    WindowManager::FrameBufferResize(nWidth, nHeight);
     glViewport(0, 0, nWidth, nHeight);
 }
 
@@ -41,7 +56,12 @@ int main(int argc, char* argv)
     JUMP_IF_FAIL(pWindow);
 
     glfwSetKeyCallback(pWindow, glfwKeyCallback);
+    glfwSetCursorPosCallback(pWindow, glfwMousemoveCallback);
+    //glfwSetMouseButtonCallback()
+    glfwSetWindowSizeCallback(pWindow, glfwWindowResizeCallback);
     glfwSetFramebufferSizeCallback(pWindow, glfwResizeCallback);
+
+    WindowManager::SetWindowState(pWindow);
 
     glfwMakeContextCurrent(pWindow);
     //glew loadlib
