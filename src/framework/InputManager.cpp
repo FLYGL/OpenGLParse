@@ -1,8 +1,9 @@
 #include "InputManager.hpp"
+#include <framework/GlobalInstanceManager.hpp>
 
 InputManager& InputManager::GetInstance()
 {
-    static InputManager s_instance;
+    static InputManager& s_instance = InstanceManager::GetInstanceManager().RegisterIntance<InputManager>();
     return s_instance;
 }
 
@@ -23,7 +24,7 @@ void InputManager::UnRegisterInputCallback(size_t uUniqueId)
     {
         return;
     }
-    for (int i = GetInstance().m_registeredCallback.size(); i >= 0; ++i)
+    for (int i = static_cast<int>(GetInstance().m_registeredCallback.size()) - 1; i >= 0; ++i)
     {
         if (GetInstance().m_registeredCallback[i].uUniqueId == uUniqueId)
         {

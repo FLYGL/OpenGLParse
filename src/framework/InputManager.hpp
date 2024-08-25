@@ -5,6 +5,7 @@ typedef void (*InputCallback)(int nKey, int nAction, void* pContext);
 
 class InputManager
 {
+    friend class InstanceManager;
 public:
     ~InputManager() = default;
 public:

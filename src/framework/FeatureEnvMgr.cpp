@@ -1,6 +1,6 @@
 #include<iostream>
 #include <vector>
-
+#include <framework/GlobalInstanceManager.hpp>
 #include "FeatureEnvMgr.hpp"
 class FeatureMgr
 {
@@ -17,8 +17,6 @@ public:
 	bool AddFeatureFunc(FeatureFunc);
 	bool RunAllFeatures();
 	bool ClearAllFeatureFunc();
-public:
-	static FeatureMgr* CreateInstance();
 private:
 	std::vector<FeatureFunc> m_registeredFeatures;
 };
@@ -26,7 +24,7 @@ private:
 //no dealloc
 static FeatureMgr& GetFeatureMgr()
 {
-	static FeatureMgr s_featureMgr;
+	static FeatureMgr& s_featureMgr = InstanceManager::GetInstanceManager().RegisterIntance<FeatureMgr>();
 	return s_featureMgr;
 }
 
@@ -56,11 +54,6 @@ bool FeatureMgr::RunAllFeatures()
 		featureFunc();
 	}
 	return true;
-}
-
-FeatureMgr* FeatureMgr::CreateInstance()
-{
-	return new FeatureMgr;
 }
 
 void* _registerFeaturetest(FeatureFunc featureFunc)

@@ -58,9 +58,7 @@ int main(int argc, char* argv)
         glfwPollEvents();
     }
 
-SUCCESS_STATE:
     nResult = 0;
-
 FAIL_STATE:
     glfwDestroyWindow(pWindow);
     glfwTerminate();

@@ -1,5 +1,6 @@
-#include "framework/EasyDefine.hpp"
-#include "framework/FeatureEnvMgr.hpp"
+#include <framework/EasyDefine.hpp>
+#include <framework/FeatureEnvMgr.hpp>
+#include <framework/GlobalInstanceManager.hpp>
 
 #include <iostream>
 #include <vector>
@@ -51,7 +52,7 @@ struct CubeDrawContext
     {}
 };
 
-CubeDrawContext gs_cubeDrawContext;
+CubeDrawContext& gs_cubeDrawContext = InstanceManager::GetInstanceManager().RegisterIntance< CubeDrawContext>();
 
 void InitCubeDrawContext()
 {
