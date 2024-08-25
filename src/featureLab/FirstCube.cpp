@@ -171,6 +171,7 @@ void UpdateCamera()
     //key control
     //in the world coordinate movement
     glm::vec4 moveDirection = glm::zero<glm::vec4>();
+    glm::mat4 transposedViewMatrix = glm::transpose(gs_cubeDrawContext.viewMat4);
     switch (gs_cubeDrawContext.inputKey)
     {
         case GLFW_KEY_NONE:
@@ -178,27 +179,27 @@ void UpdateCamera()
         case GLFW_KEY_D:
         case GLFW_KEY_RIGHT:
             //move down the x
-            moveDirection = gs_cubeDrawContext.viewMat4[0];
+            moveDirection = transposedViewMatrix[0];
             break;
         case GLFW_KEY_SPACE:
             //move down the y
-            moveDirection = gs_cubeDrawContext.viewMat4[1];
+            moveDirection = transposedViewMatrix[1];
             break;
         case GLFW_KEY_W:
         case GLFW_KEY_UP:
             //move down the z
-            moveDirection = gs_cubeDrawContext.viewMat4[2];
+            moveDirection = transposedViewMatrix[2];
             break;
         case GLFW_KEY_A:
         case GLFW_KEY_LEFT:
-            moveDirection = -gs_cubeDrawContext.viewMat4[0];
+            moveDirection = -transposedViewMatrix[0];
             break;
         case GLFW_KEY_LEFT_SHIFT:
-            moveDirection = -gs_cubeDrawContext.viewMat4[1];
+            moveDirection = -transposedViewMatrix[1];
             break;
         case GLFW_KEY_S:
         case GLFW_KEY_DOWN:
-            moveDirection = -gs_cubeDrawContext.viewMat4[2];
+            moveDirection = -transposedViewMatrix[2];
         default:
             break;
     }

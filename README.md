@@ -4,6 +4,5 @@
 
 # TODO
 1. difference between vao and vbo
-2. camera move
-3. world render context wrapper
-4. glviewport
+2. world render context wrapper
+3. glviewport
