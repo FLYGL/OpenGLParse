@@ -3,6 +3,7 @@
 2. Rapidly Test
 
 # TODO
-1. difference between vao and vbo
-2. world render context wrapper
-3. glviewport
+1. world render context wrapper
+2. glviewport
+3. move the logic of perspective division in cpu to gpu
+4. moveComponent refactor

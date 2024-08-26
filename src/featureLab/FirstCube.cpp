@@ -106,15 +106,33 @@ void InitCubeDrawContext()
     GLuint cubeVertexName;
     GLuint cubeBufferName;
     
+    //gen vao
     glGenVertexArrays(1, &cubeVertexName);
     JUMP_IF_FAIL(cubeVertexName > 0);
 
+    //gen vbo
     glGenBuffers(1, &cubeBufferName);
     JUMP_IF_FAIL(cubeBufferName > 0);
 
+    //bind vao,after binding, vao will capture most vertexattributeInfos;
     glBindVertexArray(cubeVertexName);
+    GLuint uVertexAttriLocation = 0;
+    //enable this attribute for vao
+    glEnableVertexAttribArray(uVertexAttriLocation);
+
+    //bind buffer to define bufferformat
     glBindBuffer(GL_ARRAY_BUFFER, cubeBufferName);
+    GLuint uVertexPointComp = 3;
+    //define buffer format and attributeIndex, this also record buffer, buffer format,attributeindex in vao
+    glVertexAttribPointer(uVertexAttriLocation, uVertexPointComp, GL_FLOAT, GL_FALSE, 0, 0);
+
+    //transferVertexAttributeData
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(Triangle) * cubeTriangles.size()), cubeTriangles.data()->vertices.data(), GL_STATIC_DRAW);
+
+    //vbo deal done
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //vao deal done
+    glBindVertexArray(0);
 
     gs_cubeDrawContext.triangles = std::move(cubeTriangles);
     gs_cubeDrawContext.vertexObjName = cubeVertexName;
@@ -270,20 +288,17 @@ void DoCubeTransform()
             tranformedPoint.z = tranformedGlmPoint.z;
         }
     }
-    glBindVertexArray(gs_cubeDrawContext.vertexObjName);
+    glBindBuffer(GL_ARRAY_BUFFER, gs_cubeDrawContext.vertexObjBuffer);
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(Point) * tranformedVertices.size()), tranformedVertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void DrawCube()
 {
-    GLuint uVertexAttriLocation = 0;
-    GLuint uVertexPointComp = 3;
     glUseProgram(gs_cubeDrawContext.program);
-    glEnableVertexAttribArray(uVertexAttriLocation);
     glBindVertexArray(gs_cubeDrawContext.vertexObjName);
-    glVertexAttribPointer(uVertexAttriLocation, uVertexPointComp, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(gs_cubeDrawContext.triangles.size() * sizeof(Triangle::vertices)));
-    glDisableVertexAttribArray(uVertexAttriLocation);
+    glBindVertexArray(0);
 }
 
 void FirstCube()
