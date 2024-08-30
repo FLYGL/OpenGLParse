@@ -37,6 +37,9 @@ public:
     static void GetWindowState(OUT WindowState& rWindowState);
     static void SetWindowState(GLFWwindow* pGLFWWindow);
     static void SetMousePosition(double fXPos, double fYPos);
+    static bool HiddenMouse();
+    static bool ShowMouse();
+    static bool ResetCenterMouse();
     static WindowManager& GetInstance();
 private:
     std::vector<WindowEventCallback> m_windows;

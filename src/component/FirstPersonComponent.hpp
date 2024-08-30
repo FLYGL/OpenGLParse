@@ -38,6 +38,7 @@ private:
     double m_dMouseXDelta;
     double m_dMouseYDelta;
     bool   m_bIsMousemove;
+    bool   m_bReleaseMouse;
 
     glm::float32 m_fMoveSpeed;
     glm::float32 m_fRotateSpeed;

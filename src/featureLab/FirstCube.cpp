@@ -55,10 +55,6 @@ struct CubeDrawContext
     WindowState windowState;
 
     bool inited = false;
-
-    CubeDrawContext() :
-        inputCamera{ CubeKeyInputCallback , CubeMousemoveCallback, this }
-    {}
 };
 
 CubeDrawContext& gs_cubeDrawContext = InstanceManager::GetInstanceManager().RegisterIntance< CubeDrawContext>();
@@ -165,6 +161,8 @@ void InitCubeDrawContext()
 
     WindowManager::GetInstance().GetWindowState(gs_cubeDrawContext.windowState);
     WindowManager::GetInstance().RegisterWindowCallback(WindowResizeCallback, FrameResizeCallback);
+
+    gs_cubeDrawContext.inputCamera.SetCallback(CubeKeyInputCallback , CubeMousemoveCallback, &gs_cubeDrawContext);
 
     gs_cubeDrawContext.inited = true;
 FAIL_STATE:

@@ -1,5 +1,6 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "FirstPersonComponent.hpp"
 
 void FirstPersonComponent::FirstPersonKeyInputCallback(int nKey, int nAction, void* pContext)
@@ -38,20 +39,21 @@ bool FirstPersonComponent::Init()
     m_input.SetCallback(FirstPersonKeyInputCallback, FirstPersonMousemoveCallback, reinterpret_cast<void*>(this));
     WindowManager::GetInstance().GetWindowState(m_windowState);
     WindowManager::GetInstance().RegisterWindowCallback(WindowResizeCallback, nullptr);
-
     m_camera.SetPosition({ 0, 0, -10 });
     m_camera.GenrateViewMatrix(m_viewMat4);
     m_camera.SetFrustum(45.0f, 1.0f, 0.5f, 20.0f);
     m_camera.GenratePerspectiveMatrix(m_perspectiveMat4);
 
-    m_fMoveSpeed = 10.0f;
+    m_fMoveSpeed = 15.0f;
     m_fRotateSpeed = 90.0f;
 
     m_dMouseXDelta = 0.0f;
     m_dMouseYDelta = 0.0f;
     m_bIsMousemove = false;
+    m_bReleaseMouse = !WindowManager::GetInstance().HiddenMouse();
 
     m_nInputKey = GLFW_KEY_NONE;
+
     return true;
 }
 
@@ -94,6 +96,22 @@ void FirstPersonComponent::UpdateByDeltaTime(long long ullDeltaTime)
     case GLFW_KEY_S:
     case GLFW_KEY_DOWN:
         moveDirection = -transposedViewMatrix[2];
+        break;
+    case GLFW_KEY_F11:
+    {
+        if (m_bReleaseMouse)
+        {
+            WindowManager::GetInstance().HiddenMouse();
+        }
+        else
+        {
+            WindowManager::GetInstance().ShowMouse();
+            WindowManager::GetInstance().ResetCenterMouse();
+        }
+        m_bReleaseMouse = !m_bReleaseMouse;
+        m_nInputKey = GLFW_KEY_NONE;
+        break;
+    }
     default:
         break;
     }
@@ -106,21 +124,21 @@ void FirstPersonComponent::UpdateByDeltaTime(long long ullDeltaTime)
 
     //mouse control
     //view rotate
-    if (m_bIsMousemove)
+    if (m_bIsMousemove && !m_bReleaseMouse)
     {
         glm::float32 deltaXDegree = m_fRotateSpeed * static_cast<glm::float32>(ullDeltaTime) / 1000.0f;
         glm::float32 deltaYDegree = deltaXDegree;
         //fixed rotate even different delta
 
         //rotate Y
-        if (glm::epsilonNotEqual<double>(m_dMouseXDelta, 0.0, 0.01))
+        if (glm::epsilonNotEqual<double>(m_dMouseXDelta, 0.0, 0.1))
         {
             //counterclock
             deltaYDegree = m_dMouseXDelta < 0 ? deltaYDegree : -deltaYDegree;
             m_camera.AddDeltaYDegree(deltaYDegree);
         }
         //rotate X
-        if (glm::epsilonNotEqual<double>(m_dMouseYDelta, 0.0, 0.01))
+        if (glm::epsilonNotEqual<double>(m_dMouseYDelta, 0.0, 0.1))
         {
             deltaXDegree = m_dMouseYDelta < 0 ? deltaXDegree : -deltaXDegree;
             m_camera.AddDeltaXDegree(deltaXDegree);
@@ -132,4 +150,8 @@ void FirstPersonComponent::UpdateByDeltaTime(long long ullDeltaTime)
     }
 
     m_camera.GenrateViewMatrix(m_viewMat4);
+    if (!m_bReleaseMouse)
+    {
+        WindowManager::GetInstance().ResetCenterMouse();
+    }
 }

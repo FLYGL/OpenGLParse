@@ -34,24 +34,11 @@ struct CubeDrawContext
     //timestamp
     std::chrono::steady_clock::time_point lastTime;
     std::chrono::milliseconds deltaTime;
-    WindowState windowState;
 
     bool inited = false;
 };
 
 CubeDrawContext& gs_cubeDrawContext = InstanceManager::GetInstanceManager().RegisterIntance< CubeDrawContext>();
-
-void WindowResizeCallback(int nWidth, int nHeight)
-{
-    gs_cubeDrawContext.windowState.nWindowWidth = nWidth;
-    gs_cubeDrawContext.windowState.nWindowHeight = nHeight;
-}
-
-void FrameResizeCallback(int nWidth, int nHeight)
-{
-    gs_cubeDrawContext.windowState.nFrameBufferWidth = nWidth;
-    gs_cubeDrawContext.windowState.nFrameBufferHeight = nHeight;
-}
 
 void InitCubeDrawContext()
 {
@@ -100,9 +87,6 @@ void InitCubeDrawContext()
 
     gs_cubeDrawContext.lastTime = std::chrono::high_resolution_clock::now();
     gs_cubeDrawContext.deltaTime = std::chrono::milliseconds(0);
-
-    WindowManager::GetInstance().GetWindowState(gs_cubeDrawContext.windowState);
-    WindowManager::GetInstance().RegisterWindowCallback(WindowResizeCallback, FrameResizeCallback);
 
     gs_cubeDrawContext.inited = true;
 FAIL_STATE:
@@ -174,9 +158,7 @@ void DrawCube()
 
 void PostProcess()
 {
-    double centerWidth = gs_cubeDrawContext.windowState.nWindowWidth / 2;
-    double centerHeight = gs_cubeDrawContext.windowState.nWindowHeight / 2;
-    WindowManager::GetInstance().SetMousePosition(centerWidth, centerHeight);
+    
 }
 
 void RefactorCube()

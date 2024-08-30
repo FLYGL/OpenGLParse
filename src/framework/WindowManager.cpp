@@ -56,3 +56,27 @@ void WindowManager::SetMousePosition(double fXPos, double fYPos)
     GLFWwindow* pGLFWWindow = GetInstance().m_pGLFWWindow;
     glfwSetCursorPos(pGLFWWindow, fXPos, fYPos);
 }
+
+bool WindowManager::HiddenMouse()
+{
+    GLFWwindow* pGLFWWindow = GetInstance().m_pGLFWWindow;
+    glfwSetInputMode(pGLFWWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    return true;
+}
+
+bool WindowManager::ShowMouse()
+{
+    GLFWwindow* pGLFWWindow = GetInstance().m_pGLFWWindow;
+    glfwSetInputMode(pGLFWWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    return true;
+}
+
+bool WindowManager::ResetCenterMouse()
+{
+    WindowManager& rWindowMgr = GetInstance();
+    GLFWwindow* pGLFWWindow = rWindowMgr.m_pGLFWWindow;
+    double centerWidth = static_cast<double>(rWindowMgr.m_windowState.nWindowWidth / 2);
+    double centerHeight = static_cast<double>(rWindowMgr.m_windowState.nWindowHeight / 2);
+    WindowManager::GetInstance().SetMousePosition(centerWidth, centerHeight);
+    return true;
+}
