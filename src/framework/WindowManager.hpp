@@ -1,3 +1,4 @@
+#pragma once
 #include <framework/EasyDefine.hpp>
 #include <glfw/glfw3.h>
 #include <vector>

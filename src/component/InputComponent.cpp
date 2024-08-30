@@ -5,6 +5,11 @@ InputComponent::InputComponent(KeyInputCallback pKeyInputCallback, MousemoveCall
     m_uUniqueId = InputManager::RegisterInputCallback(pKeyInputCallback, pMousemoveCallback, pContext);
 }
 
+void InputComponent::SetCallback(KeyInputCallback pKeyInputCallback, MousemoveCallback pMousemoveCallback, void* pContext)
+{
+    m_uUniqueId = InputManager::RegisterInputCallback(pKeyInputCallback, pMousemoveCallback, pContext);
+}
+
 InputComponent::~InputComponent()
 {
     InputManager::UnRegisterInputCallback(m_uUniqueId);
