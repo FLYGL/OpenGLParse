@@ -27,7 +27,6 @@ struct CubeDrawContext
     //cube shader program
     GLuint program;
     //glm
-    glm::mat<4, 4, GLfloat> worldPositionMat4;
     glm::mat<4, 4, GLfloat> localRotateMat4;
     //component
     FirstPersonComponent firstPersonView;
@@ -77,11 +76,9 @@ void InitCubeDrawContext()
     gs_cubeDrawContext.triangles = std::move(cubeTriangles);
     gs_cubeDrawContext.vertexObjName = cubeVertexName;
     gs_cubeDrawContext.vertexObjBuffer = cubeBufferName;
-    gs_cubeDrawContext.program = ProgramWrapper::CreateProgramByCodePath("resource/Shader/easy.vertex", "resource/Shader/easy.fragment");
+    gs_cubeDrawContext.program = ProgramWrapper::CreateProgramByCodePath("resource/Shader/cube.vertex", "resource/Shader/easy.fragment");
     JUMP_IF_FAIL(gs_cubeDrawContext.program > 0);
 
-    //init worldPositionMat4
-    gs_cubeDrawContext.worldPositionMat4 = glm::identity<glm::mat4>();
     //init firstPersonView
     gs_cubeDrawContext.firstPersonView.Init();
 
@@ -123,29 +120,13 @@ void UpdateCubeRotation()
     gs_cubeDrawContext.localRotateMat4 = glm::rotate(glm::identity<glm::mat4>(), glm::radians(curYDegree), glm::vec3{ 0, 1, 0 });
 }
 
-void DoCubeTransform()
+void UpdateUniformInProgram()
 {
-    std::vector<Point> tranformedVertices;
-    tranformedVertices.resize(gs_cubeDrawContext.triangles.size() * sizeof(Triangle::vertices));
-
-    glm::mat4 transformMat = gs_cubeDrawContext.firstPersonView.GetPerspectiveMartix() * gs_cubeDrawContext.firstPersonView.GetViewMatrix() * gs_cubeDrawContext.worldPositionMat4 * gs_cubeDrawContext.localRotateMat4;
-    size_t vertexIndex = 0;
-    for (Triangle& triangle : gs_cubeDrawContext.triangles)
-    {
-        for (Point& point : triangle.vertices)
-        {
-            Point& tranformedPoint = tranformedVertices[vertexIndex++];
-            glm::vec4 tranformedGlmPoint = transformMat * glm::vec4(point.x, point.y, point.z, 1);
-            // perspective division
-            tranformedGlmPoint /= tranformedGlmPoint.w;
-            tranformedPoint.x = tranformedGlmPoint.x;
-            tranformedPoint.y = tranformedGlmPoint.y;
-            tranformedPoint.z = tranformedGlmPoint.z;
-        }
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, gs_cubeDrawContext.vertexObjBuffer);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(Point) * tranformedVertices.size()), tranformedVertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(gs_cubeDrawContext.program);
+    glUniformMatrix4fv(0, 1, false, &gs_cubeDrawContext.localRotateMat4[0][0]);
+    glUniformMatrix4fv(1, 1, false, &gs_cubeDrawContext.firstPersonView.GetViewMatrix()[0][0]);
+    glUniformMatrix4fv(2, 1, false, &gs_cubeDrawContext.firstPersonView.GetPerspectiveMartix()[0][0]);
+    glUseProgram(0);
 }
 
 void DrawCube()
@@ -158,7 +139,7 @@ void DrawCube()
 
 void PostProcess()
 {
-    
+    DO_NOTHING();
 }
 
 void RefactorCube()
@@ -171,7 +152,7 @@ void RefactorCube()
     BaseContextUpdate();
     UpdateCamera();
     UpdateCubeRotation();
-    DoCubeTransform();
+    UpdateUniformInProgram();
     DrawCube();
     PostProcess();
 }

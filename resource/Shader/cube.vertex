@@ -1,7 +1,12 @@
 #version 330 core
+#extension GL_ARB_explicit_uniform_location : enable
+
 layout(location = 0) in vec3 vertexPositon;
-//TODO model matrix, view matrix, project matrix
+layout(location = 0) uniform mat4 modelMatrix;
+layout(location = 1) uniform mat4 viewMatrix;
+layout(location = 2) uniform mat4 perspectiveMatrix;
+
 void main()
 {
-	gl_Position = vec4(vertexPositon, 1.0);
+	gl_Position =  perspectiveMatrix * viewMatrix * modelMatrix * vec4(vertexPositon, 1.0);
 }
