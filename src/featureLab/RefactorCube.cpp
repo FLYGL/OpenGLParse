@@ -123,9 +123,9 @@ void UpdateCubeRotation()
 void UpdateUniformInProgram()
 {
     glUseProgram(gs_cubeDrawContext.program);
-    glUniformMatrix4fv(0, 1, false, &gs_cubeDrawContext.localRotateMat4[0][0]);
-    glUniformMatrix4fv(1, 1, false, &gs_cubeDrawContext.firstPersonView.GetViewMatrix()[0][0]);
-    glUniformMatrix4fv(2, 1, false, &gs_cubeDrawContext.firstPersonView.GetPerspectiveMartix()[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(gs_cubeDrawContext.program, "modelMatrix"), 1, false, &gs_cubeDrawContext.localRotateMat4[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(gs_cubeDrawContext.program, "viewMatrix"), 1, false, &gs_cubeDrawContext.firstPersonView.GetViewMatrix()[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(gs_cubeDrawContext.program, "perspectiveMatrix"), 1, false, &gs_cubeDrawContext.firstPersonView.GetPerspectiveMartix()[0][0]);
     glUseProgram(0);
 }
 
