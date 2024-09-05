@@ -68,7 +68,7 @@ bool LoadFileContent(const std::string& rAbsolutePath, void** ppBuffer, size_t* 
     //fixed allocator
     pBuffer = malloc(uFileSize);
     JUMP_IF_FAIL(pBuffer);
-    bRetCode = fread(pBuffer, uFileSize, 1, pFile) == uFileSize;
+    bRetCode = fread(pBuffer, 1, uFileSize, pFile) == uFileSize;
     JUMP_IF_FAIL(bRetCode);
 
 SUCCESS_STATE:
@@ -81,6 +81,10 @@ FAIL_STATE:
     if (!bResult)
     {
         free(pBuffer);
+    }
+    if(pFile)
+    {
+        fclose(pFile);
     }
     return bResult;
 }
