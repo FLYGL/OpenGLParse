@@ -24,8 +24,8 @@ void CameraComponent::SetPosition(const glm::vec3& newPosition)
 void CameraComponent::AddDeltaXDegree(glm::float32 deltaXDegree)
 {
     m_rotatedXDegree += deltaXDegree;
-    m_rotatedXDegree = std::max(m_rotatedXDegree, -90.0f);
-    m_rotatedXDegree = std::min(m_rotatedXDegree, 90.0f);
+    m_rotatedXDegree = std::fmax(m_rotatedXDegree, -90.0f);
+    m_rotatedXDegree = std::fmin(m_rotatedXDegree, 90.0f);
 }
 
 void CameraComponent::AddDeltaYDegree(glm::float32 deltaYDegree)

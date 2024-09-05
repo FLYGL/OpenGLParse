@@ -2,7 +2,7 @@
 #include <framework/FeatureEnvMgr.hpp>
 #include <framework/GlobalInstanceManager.hpp>
 #include <framework/WindowManager.hpp>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <vector>
@@ -44,6 +44,8 @@ void InitCubeDrawContext()
     std::vector<Triangle> cubeTriangles = std::move(MakeCubeTriangles({ -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f }));
     GLuint cubeVertexName;
     GLuint cubeBufferName;
+    GLuint uVertexAttriLocation = 0;
+    GLuint uVertexPointComp = 3;
 
     //gen vao
     glGenVertexArrays(1, &cubeVertexName);
@@ -55,13 +57,11 @@ void InitCubeDrawContext()
 
     //bind vao,after binding, vao will capture most vertexattributeInfos;
     glBindVertexArray(cubeVertexName);
-    GLuint uVertexAttriLocation = 0;
     //enable this attribute for vao
     glEnableVertexAttribArray(uVertexAttriLocation);
 
     //bind buffer to define bufferformat
     glBindBuffer(GL_ARRAY_BUFFER, cubeBufferName);
-    GLuint uVertexPointComp = 3;
     //define buffer format and attributeIndex, this also record buffer, buffer format,attributeindex in vao
     glVertexAttribPointer(uVertexAttriLocation, uVertexPointComp, GL_FLOAT, GL_FALSE, 0, 0);
 

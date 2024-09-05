@@ -4,7 +4,7 @@
 #include <framework/InputManager.hpp>
 #include <iostream>
 #include <GL/glew.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 //glfw error callback
 static void glfwErrorCallback(int error, const char* description)
@@ -40,7 +40,7 @@ static void glfwResizeCallback(GLFWwindow* pWindow, int nWidth, int nHeight)
     glViewport(0, 0, nWidth, nHeight);
 }
 
-int main(int argc, char* argv)
+int main(int argc, char* argv[])
 {
     int nResult = -1;
     bool bRetCode = false;

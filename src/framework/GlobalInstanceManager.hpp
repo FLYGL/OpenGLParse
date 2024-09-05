@@ -26,7 +26,7 @@ public:
     {
         InstanceType* pResult = nullptr;
 
-        pResult = new InstanceType(std::forward<InitArgs> args...);
+        pResult = new InstanceType(std::forward<InitArgs>(args)...);
         assert(pResult);
         m_instances.emplace_back(reinterpret_cast<void*>(pResult), &InstanceDeconstructor<InstanceType>);
 

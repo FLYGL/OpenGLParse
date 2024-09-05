@@ -66,6 +66,8 @@ GLuint ProgramWrapper::CreateProgramByCodePath(const std::string& rVertexShaderC
 {
     GLuint uResult = 0;
     bool bRetCode = false;
+    GLuint program;
+    GLint programStatus;
 
     GLuint easyVertexShader = ShaderWrapper::CreateShaderByCodePath(GL_VERTEX_SHADER, rVertexShaderCodeAbPath);
     GLuint easyFragShader = ShaderWrapper::CreateShaderByCodePath(GL_FRAGMENT_SHADER, rFragShaderCodeAbPath);
@@ -73,8 +75,8 @@ GLuint ProgramWrapper::CreateProgramByCodePath(const std::string& rVertexShaderC
     JUMP_IF_FAIL(easyFragShader > 0);
 
     //gpu program
-    GLuint program = glCreateProgram();
-    GLint programStatus;
+    program = glCreateProgram();
+    
     glAttachShader(program, easyVertexShader);
     glAttachShader(program, easyFragShader);
     glLinkProgram(program);
