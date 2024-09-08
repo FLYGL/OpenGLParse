@@ -50,7 +50,7 @@ bool FirstPersonComponent::Init()
     m_dMouseXDelta = 0.0f;
     m_dMouseYDelta = 0.0f;
     m_bIsMousemove = false;
-    m_bReleaseMouse = !WindowManager::GetInstance().HiddenMouse();
+    m_bReleaseMouse = true;
 
     m_nInputKey = GLFW_KEY_NONE;
 

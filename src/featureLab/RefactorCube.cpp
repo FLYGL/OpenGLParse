@@ -157,6 +157,6 @@ void RefactorCube()
     PostProcess();
 }
 
-RegisterUniqueFrameFeaturetest(RefactorCube);
+RegisterFrameFeaturetest(RefactorCube);
 
 ANONYMOUS_SCOPE_END

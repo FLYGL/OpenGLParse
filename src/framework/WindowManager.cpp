@@ -14,7 +14,8 @@ void WindowManager::FrameBufferResize(int nWidth, int nHeight)
     rCurWinState.nFrameBufferHeight = nHeight;
     for (WindowEventCallback& rCallback : WindowManager::GetInstance().m_windows)
     {
-        rCallback.m_pFrameBufferResizeCallback(nWidth, nHeight);
+        if(rCallback.m_pFrameBufferResizeCallback)
+            rCallback.m_pFrameBufferResizeCallback(nWidth, nHeight);
     }
 }
 
@@ -25,7 +26,8 @@ void WindowManager::WindowResize(int nWidth, int nHeight)
     rCurWinState.nWindowHeight = nHeight;
     for (WindowEventCallback& rCallback : WindowManager::GetInstance().m_windows)
     {
-        rCallback.m_pWindowResizeCallback(nWidth, nHeight);
+        if(rCallback.m_pWindowResizeCallback)
+            rCallback.m_pWindowResizeCallback(nWidth, nHeight);
     }
 }
 

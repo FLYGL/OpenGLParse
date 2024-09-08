@@ -1,0 +1,15 @@
+#version 330 core
+
+layout(location = 0) in vec3 vertexPosition;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 perspectiveMatrix;
+uniform vec3 circleCenter;
+uniform float circleRadius;
+
+out vec3 fragmentWorldPosition;
+void main()
+{
+	gl_Position =  perspectiveMatrix * viewMatrix * modelMatrix * vec4(vertexPosition, 1.0);
+	fragmentWorldPosition = vertexPosition;
+}

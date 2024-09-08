@@ -24,3 +24,10 @@ std::vector<Triangle> MakeCubeTriangles(const Point& min, const Point& max)
         {{1, 1, 1}, {-1, 1, 1}, {-1, -1, 1}}, {{-1, -1, 1}, {1, -1, 1}, {1, 1, 1}}
     };
 }
+
+std::vector<Triangle> MakeCircleQuad()
+{
+    return{
+        {{1, 1, 0}, {-1, 1, 0}, {-1, -1, 0}}, {{-1, -1, 0}, {1, -1, 0}, {1, 1, 0}}
+    };
+}

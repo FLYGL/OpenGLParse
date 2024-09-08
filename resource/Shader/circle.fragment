@@ -1,0 +1,11 @@
+#version 330 core
+uniform vec3 circleCenter;
+uniform float circleRadius;
+in vec3 fragmentWorldPosition;
+
+out vec4 FragColor;
+void main()
+{
+	float posDistance = distance(fragmentWorldPosition, circleCenter);
+	FragColor = vec4(mix(vec3(0.0), vec3(1.0),smoothstep(circleRadius + 0.01, circleRadius - 0.01, posDistance)), 1.0);
+}
