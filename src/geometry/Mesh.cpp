@@ -1,5 +1,4 @@
 #include <framework/EasyDefine.hpp>
-
 #include "Mesh.hpp"
 
 bool MeshBase::InitOpenGLObject()
@@ -46,12 +45,18 @@ bool MeshBase::MeshUploadGPUSync()
 
     glBindVertexArray(m_meshVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_meshVBO);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(GetMeshCPUBufferSize()), pMeshCPUMem, GL_STATIC_DRAW);
 
     for(uint32_t i = 0; i < attributeInfos.size(); ++i)
     {
         OpenGL_VAO_AttributeInfo& rAttrInfo = attributeInfos[i];
         if(!rAttrInfo.bEnable)
+        {
+            glDisableVertexAttribArray(rAttrInfo.uAttrLocation);
             continue;
+        }
+
+        glEnableVertexAttribArray(rAttrInfo.uAttrLocation);
         glVertexAttribPointer(
             rAttrInfo.uAttrLocation,
             rAttrInfo.nAttrComponentSize,
@@ -69,4 +74,12 @@ bool MeshBase::MeshUploadGPUSync()
     bResult = true;
 FAIL_STATE:
     return bResult;
+}
+
+bool MeshBase::DrawVAO()
+{
+    glBindVertexArray(m_meshVAO);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(GetVertexCount()));
+    glBindVertexArray(0);
+    return true;
 }

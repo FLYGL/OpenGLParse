@@ -48,20 +48,30 @@ GLenum constexpr GetGLenumFromGlmType()
 template <MeshStorageType, typename = glm::vec3, typename = glm::vec3, typename = glm::vec3>
 class MeshMemStorage;
 
-template <typename PostionType, typename ColorType, typename NormalType>
-class MeshMemStorage<MeshStorageType::MIX, PostionType, ColorType, NormalType>
+template <typename _PostionType, typename _ColorType, typename _NormalType>
+class MeshMemStorage<MeshStorageType::MIX, _PostionType, _ColorType, _NormalType>
 {
+public:
+    using PositionType = _PostionType;
+    using ColorType = _ColorType;
+    using NormalType = _NormalType;
 public:
     MeshMemStorage() = default;
     ~MeshMemStorage() = default;
 public:
-    void SetMeshStorage(unsigned char* pMeshBuffer, size_t uVertexCount, MeshDataType eMeshDataType)
+    void ReleaseStorage()
+    {
+        delete[] m_pMeshBuffer;
+    }
+    
+    void SetMeshStorage(unsigned char* pMeshBuffer, size_t uMeshBufferSize, size_t uVertexCount, MeshDataType eMeshDataType)
     {
         assert(pMeshBuffer);
         assert(uVertexCount > 0);
         m_pMeshBuffer = pMeshBuffer;
         m_eDataTypes = eMeshDataType;
         m_uVertexCount = uVertexCount;
+        m_uMeshBufferSize = uMeshBufferSize;
         m_uBytesPerVertex = 0;
         m_nPositionTypeOffset = -1;
         m_nColorTypeOffset = -1;
@@ -69,7 +79,7 @@ public:
         if (eMeshDataType & MeshDataType::POSITION)
         {
             m_nPositionTypeOffset = m_uBytesPerVertex;
-            m_uBytesPerVertex += sizeof(PostionType);
+            m_uBytesPerVertex += sizeof(PositionType);
         }
         if (eMeshDataType & MeshDataType::COLOR)
         {
@@ -86,17 +96,17 @@ public:
 public:
     //Base Access Function
     size_t GetVertexCount() { return m_uVertexCount; }
-    void SetPosition(size_t uIndex, PostionType pos)
+    void SetPosition(size_t uIndex, PositionType pos)
     {
         assert(uIndex < m_uVertexCount);
         assert(m_nPositionTypeOffset >= 0);
-        *reinterpret_cast<PostionType*>(m_pMeshBuffer + m_uBytesPerVertex * uIndex + m_nPositionTypeOffset) = pos;
+        *reinterpret_cast<PositionType*>(m_pMeshBuffer + m_uBytesPerVertex * uIndex + m_nPositionTypeOffset) = pos;
     }
-    PostionType GetPosition(size_t uIndex)
+    PositionType GetPosition(size_t uIndex)
     {
         assert(uIndex < m_uVertexCount);
         assert(m_nPositionTypeOffset >= 0);
-        return *reinterpret_cast<PostionType*>(m_pMeshBuffer + m_uBytesPerVertex * uIndex + m_nPositionTypeOffset);
+        return *reinterpret_cast<PositionType*>(m_pMeshBuffer + m_uBytesPerVertex * uIndex + m_nPositionTypeOffset);
     }
     void SetColor(size_t uIndex, ColorType color)
     {
@@ -126,42 +136,47 @@ public:
     MeshStorageType GetMeshStorageType()    { return MeshStorageType::MIX; }
     MeshDataType    GetMeshDataType()       { return m_eDataTypes; }
     void*           GetMeshBuffer()         { return reinterpret_cast<void*>(m_pMeshBuffer); }
+    size_t          GetMeshBufferSize()     { return m_uMeshBufferSize; }
 
 
     std::array<OpenGL_VAO_AttributeInfo,3> GetAttributeInfos()
     {
         std::array<OpenGL_VAO_AttributeInfo,3> attributeInfos;
+        GLsizei uStride = (m_eDataTypes & MeshDataType::POSITION) == MeshDataType::POSITION ? 0 : m_uBytesPerVertex;
+        
+        attributeInfos[OPENGL_VAO_POSITION_LOCATION].uAttrLocation = OPENGL_VAO_POSITION_LOCATION;
         if(m_nPositionTypeOffset >= 0)
         {
             OpenGL_VAO_AttributeInfo& rAttrInfo = attributeInfos[OPENGL_VAO_POSITION_LOCATION];
             rAttrInfo.bEnable = true;
-            rAttrInfo.uAttrLocation = OPENGL_VAO_POSITION_LOCATION;
-            rAttrInfo.nAttrComponentSize = PostionType::length_type();
-            rAttrInfo.eAttrComponentType = GetGLenumFromGlmType<PostionType>();
+            rAttrInfo.nAttrComponentSize = PositionType::length();
+            rAttrInfo.eAttrComponentType = GetGLenumFromGlmType<PositionType>();
             rAttrInfo.bNormalized = GL_FALSE;
-            rAttrInfo.uStride = m_uBytesPerVertex;
+            rAttrInfo.uStride = uStride;
             rAttrInfo.uFirstOffset = m_nPositionTypeOffset;
         }
+
+        attributeInfos[OPENGL_VAO_COLOR_LOCATION].uAttrLocation = OPENGL_VAO_COLOR_LOCATION;
         if(m_nColorTypeOffset >= 0)
         {
             OpenGL_VAO_AttributeInfo& rAttrInfo = attributeInfos[OPENGL_VAO_COLOR_LOCATION];
             rAttrInfo.bEnable = true;
-            rAttrInfo.uAttrLocation = OPENGL_VAO_COLOR_LOCATION;
-            rAttrInfo.nAttrComponentSize = ColorType::length_type();
+            rAttrInfo.nAttrComponentSize = ColorType::length();
             rAttrInfo.eAttrComponentType = GetGLenumFromGlmType<ColorType>();
             rAttrInfo.bNormalized = GL_FALSE;
-            rAttrInfo.uStride = m_uBytesPerVertex;
+            rAttrInfo.uStride = uStride;
             rAttrInfo.uFirstOffset = m_nColorTypeOffset;
         }
+
+        attributeInfos[OPENGL_VAO_NORMAL_LOCATION].uAttrLocation = OPENGL_VAO_NORMAL_LOCATION;
         if(m_nNormalTypeOffset >= 0)
         {
             OpenGL_VAO_AttributeInfo& rAttrInfo = attributeInfos[OPENGL_VAO_NORMAL_LOCATION];
             rAttrInfo.bEnable = true;
-            rAttrInfo.uAttrLocation = OPENGL_VAO_NORMAL_LOCATION;
-            rAttrInfo.nAttrComponentSize = NormalType::length_type();
+            rAttrInfo.nAttrComponentSize = NormalType::length();
             rAttrInfo.eAttrComponentType = GetGLenumFromGlmType<NormalType>();
             rAttrInfo.bNormalized = GL_FALSE;
-            rAttrInfo.uStride = m_uBytesPerVertex;
+            rAttrInfo.uStride = uStride;
             rAttrInfo.uFirstOffset = m_nNormalTypeOffset;
         }
 
@@ -169,6 +184,7 @@ public:
     }
 private:
     unsigned char*  m_pMeshBuffer;
+    size_t          m_uMeshBufferSize;
     size_t          m_uVertexCount;
     MeshDataType    m_eDataTypes;
 private:
@@ -183,6 +199,7 @@ private:
 template <typename _PostionType, typename _ColorType, typename _NormalType>
 class MeshMemStorage<MeshStorageType::SEPARATE, _PostionType, _ColorType, _NormalType>
 {
+public:
     using PositionType = _PostionType;
     using ColorType = _ColorType;
     using NormalType = _NormalType;
@@ -190,7 +207,11 @@ public:
     MeshMemStorage() = default;
     ~MeshMemStorage() = default;
 public:
-    void SetMeshStorage(unsigned char* pMeshBuffer, size_t uVertexCount, MeshDataType eMeshDataType)
+    void ReleaseStorage()
+    {
+        delete[] m_pMeshBuffer;
+    }
+    void SetMeshStorage(unsigned char* pMeshBuffer, size_t uMeshBufferSize, size_t uVertexCount, MeshDataType eMeshDataType)
     {
         assert(pMeshBuffer);
         assert(uVertexCount > 0);
@@ -198,6 +219,7 @@ public:
         m_pMeshBuffer = pMeshBuffer;
         m_eDataTypes = eMeshDataType;
         m_uVertexCount = uVertexCount;
+        m_uMeshBufferSize = uMeshBufferSize;
         m_nPositionTypeOffset = -1;
         m_nColorTypeOffset = -1;
         m_nNormalTypeOffset = -1;
@@ -261,6 +283,8 @@ public:
     MeshStorageType GetMeshStorageType()    { return MeshStorageType::SEPARATE; }
     MeshDataType    GetMeshDataType()       { return m_eDataTypes; }
     void*           GetMeshBuffer()         { return reinterpret_cast<void*>(m_pMeshBuffer); }
+    size_t          GetMeshBufferSize()     { return m_uMeshBufferSize; }
+
     std::array<OpenGL_VAO_AttributeInfo,3> GetAttributeInfos()
     {
         std::array<OpenGL_VAO_AttributeInfo,3> attributeInfos;
@@ -302,6 +326,7 @@ public:
     }
 private:
     unsigned char*  m_pMeshBuffer;
+    size_t          m_uMeshBufferSize;
     size_t          m_uVertexCount;
     MeshDataType    m_eDataTypes;
 private:

@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include <array>
+#include <algorithm>
 
 #include "MeshMemStorage.hpp"
 //what is mesh
@@ -20,7 +21,11 @@ public:
     bool InitOpenGLObject();
     bool UnInitOpenGLObject();
     virtual bool MeshUploadGPUSync();
+    virtual bool DrawVAO();
+    virtual size_t GetVertexCount() = 0;
+    virtual void ReleaseCPUStorage() = 0;
     virtual void* GetMeshCPUMemStorage() = 0;
+    virtual size_t GetMeshCPUBufferSize() = 0;
     //TODO stack array
     virtual std::array<OpenGL_VAO_AttributeInfo,4> GetAttributeInfos() = 0;
 protected:
@@ -32,7 +37,7 @@ protected:
 template<typename MeshMemStorageType>
 class Mesh : public MeshBase
 {
-    using PositionType = typename MeshMemStorageType::PostionType;
+    using PositionType = typename MeshMemStorageType::PositionType;
     using ColorType = typename MeshMemStorageType::ColorType;
     using NormalType = typename MeshMemStorageType::NormalType;
 public:
@@ -52,20 +57,27 @@ public:
 
         pOffset = pMeshBuffer;
         memcpy(pOffset, rPositions.data(), sizeof(PositionType) * rPositions.size());
-        if(rPositions.size() > 0)
-            eMeshDataType |= MeshDataType::POSITION;
+        assert(rPositions.size() > 0);
+        eMeshDataType |= MeshDataType::POSITION;
         
-        pOffset += sizeof(PositionType) * rPositions.size();
-        memcpy(pOffset, rColors.data(), sizeof(ColorType) * rColors.size());
         if(rColors.size() > 0)
+        {
+            pOffset += sizeof(PositionType) * rPositions.size();
+            memcpy(pOffset, rColors.data(), sizeof(ColorType) * rColors.size());
+            assert(rPositions.size() == rColors.size());
             eMeshDataType |= MeshDataType::COLOR;
+        }
 
-        pOffset += sizeof(ColorType) * rColors.size();
-        memcpy(pOffset, rNormals.data(), sizeof(NormalType) * rNormals.size());
         if(rNormals.size() > 0)
+        {
+            pOffset += sizeof(ColorType) * rColors.size();
+            memcpy(pOffset, rNormals.data(), sizeof(NormalType) * rNormals.size());
+            assert(rPositions.size() == rNormals.size());
             eMeshDataType |= MeshDataType::NORMAL;
-
-        m_meshMemStorage.SetMeshStorage(pMeshBuffer, rPositions.size(), eMeshDataType);
+        }
+        m_bUploaded = false;
+        m_meshMemStorage.ReleaseStorage();
+        m_meshMemStorage.SetMeshStorage(pMeshBuffer, uBufferSize, rPositions.size(), eMeshDataType);
         bResult = true;
     FAIL_STATE:
         return bResult;
@@ -82,20 +94,46 @@ public:
     FAIL_STATE:
         return bResult;
     }
+
+    size_t GetVertexCount() override
+    {
+        return m_meshMemStorage.GetVertexCount();
+    }
+    
+    void ReleaseCPUStorage() override
+    {
+        return m_meshMemStorage.ReleaseStorage();
+    }
+
     void* GetMeshCPUMemStorage() override
     {
         return m_meshMemStorage.GetMeshBuffer();
     }
+
+    size_t GetMeshCPUBufferSize() override
+    {
+        return m_meshMemStorage.GetMeshBufferSize();
+    }
+
     std::array<OpenGL_VAO_AttributeInfo,4> GetAttributeInfos() override
     {
         std::array<OpenGL_VAO_AttributeInfo,4> result;
         auto attrInfos = m_meshMemStorage.GetAttributeInfos();
-        for(uint32_t i = 0; i < result.size() && i < attrInfos.size(); ++i)
+        uint32_t minLength = std::min(result.size(), attrInfos.size());
+        uint32_t maxLength = std::max(result.size(), attrInfos.size());
+        for(uint32_t i = 0; i < minLength; ++i)
         {
             result[i] = attrInfos[i];
+        }
+        for(uint32_t i = minLength; i < maxLength; ++i)
+        {
+            result[i].uAttrLocation = static_cast<GLuint>(i);
+            result[i].bEnable = false;
         }
         return result; 
     }
 private:
    MeshMemStorageType m_meshMemStorage;
 };
+
+typedef Mesh<MeshMemStorage<MeshStorageType::MIX>> BaseMesh;

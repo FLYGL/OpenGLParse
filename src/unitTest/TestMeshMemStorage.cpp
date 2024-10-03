@@ -65,7 +65,7 @@ void TestMeshMemStorage_MIX()
         5.0, 5.0, 5.0,  //color
         6.0, 6.0, 6.0   //normal
     };
-    mixMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(datas.data()), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
+    mixMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(datas.data()), datas.size() * sizeof(GLfloat), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
     assert(TestMeshMemStorage(mixMeshMemStorage));
 }
 
@@ -83,7 +83,7 @@ void TestMeshMemStorage_SEPARATE()
         3.0, 3.0, 3.0,  //A
         6.0, 6.0, 6.0   //B
     };
-    separateMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(datas.data()), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
+    separateMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(datas.data()), datas.size() * sizeof(GLfloat), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
     assert(TestMeshMemStorage(separateMeshMemStorage));
 }
 
@@ -151,7 +151,7 @@ void TestSameMeshMemStorage_MIX_SEPARATE()
         5.0, 5.0, 5.0,  //color
         6.0, 6.0, 6.0   //normal
     };
-    mixMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(mixDatas.data()), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
+    mixMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(mixDatas.data()), mixDatas.size() * sizeof(GLfloat), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
 
     MeshMemStorage<MeshStorageType::SEPARATE> separateMeshMemStorage;
     std::vector<GLfloat> separateDatas = {
@@ -165,16 +165,16 @@ void TestSameMeshMemStorage_MIX_SEPARATE()
         3.0, 3.0, 3.0,  //A
         6.0, 6.0, 6.0   //B
     };
-    separateMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(separateDatas.data()), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
+    separateMeshMemStorage.SetMeshStorage(reinterpret_cast<unsigned char*>(separateDatas.data()), separateDatas.size() * sizeof(GLfloat), 2, MeshDataType::POSITION | MeshDataType::COLOR | MeshDataType::NORMAL);
     assert(TestSameMeshMemStorage(mixMeshMemStorage, separateMeshMemStorage));
 }
 
-void TestMesh()
+void TestMeshMemStorage()
 {
     TestMeshMemStorage_MIX();
     TestMeshMemStorage_SEPARATE();
     TestSameMeshMemStorage_MIX_SEPARATE();
 }
 
-RegisterFeaturetest(TestMesh);
+RegisterFeaturetest(TestMeshMemStorage);
 ANONYMOUS_SCOPE_END

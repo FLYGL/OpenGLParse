@@ -3,13 +3,14 @@
 #include <framework/GlobalInstanceManager.hpp>
 #include <framework/WindowManager.hpp>
 #include <GLFW/glfw3.h>
+#include <geometry/baseGeometry.hpp>
+#include <helper/MeshHelper.hpp>
 
 #include <iostream>
 #include <vector>
 #include <chrono>
 
 #include "component/FirstPersonComponent.hpp"
-#include "geometry/baseGeometry.hpp"
 #include "GPUCodeWrapper.hpp"
 
 #include "glm/glm.hpp"
@@ -19,13 +20,8 @@
 ANONYMOUS_SCOPE_BEGIN
 struct CircleDrawContext
 {
-    //mesh data
-    std::vector<Triangle> triangles;
-    //vertex object name
-    GLuint vertexObjName;
-    //vbo
-    GLuint vertexObjBuffer;
-    //cube shader program
+    //mesh
+    BaseMesh* pCircleMesh = nullptr;
     GLuint program;
     //glm
     glm::mat<4, 4, GLfloat> modelMat4;
@@ -43,40 +39,21 @@ CircleDrawContext& gs_circleContext = InstanceManager::GetInstanceManager().Regi
 void InitCircleDrawContext()
 {
     std::vector<Triangle> circleTriangles = std::move(MakeCircleQuad());
-    GLuint circleVertexName;
-    GLuint circleBufferName;
-    GLuint uVertexAttriLocation = 0;
-    GLuint uVertexPointComp = 3;
+    MakeMeshHelper makeMeshHelper;
+    makeMeshHelper.MakeMeshBegin();
 
-    //gen vao
-    glGenVertexArrays(1, &circleVertexName);
-    JUMP_IF_FAIL(circleVertexName > 0);
+    for(Triangle& rTriangle : circleTriangles)
+    {
+        for(Point& rPoint : rTriangle.vertices)
+        {   
+            makeMeshHelper.PushPosition(glm::vec3(rPoint.x, rPoint.y, rPoint.z));
+        }
+    }
 
-    //gen vbo
-    glGenBuffers(1, &circleBufferName);
-    JUMP_IF_FAIL(circleBufferName > 0);
+    gs_circleContext.pCircleMesh = makeMeshHelper.MakeMeshEnd();
+    assert(gs_circleContext.pCircleMesh);
+    assert(gs_circleContext.pCircleMesh->MeshUploadGPUSync());
 
-    //bind vao,after binding, vao will capture most vertexattributeInfos;
-    glBindVertexArray(circleVertexName);
-    //enable this attribute for vao
-    glEnableVertexAttribArray(uVertexAttriLocation);
-
-    //bind buffer to define bufferformat
-    glBindBuffer(GL_ARRAY_BUFFER, circleBufferName);
-    //define buffer format and attributeIndex, this also record buffer, buffer format,attributeindex in vao
-    glVertexAttribPointer(uVertexAttriLocation, uVertexPointComp, GL_FLOAT, GL_FALSE, 0, 0);
-
-    //transferVertexAttributeData
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(Triangle) * circleTriangles.size()), circleTriangles.data()->vertices.data(), GL_STATIC_DRAW);
-
-    //vbo deal done
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //vao deal done
-    glBindVertexArray(0);
-
-    gs_circleContext.triangles = std::move(circleTriangles);
-    gs_circleContext.vertexObjName = circleVertexName;
-    gs_circleContext.vertexObjBuffer = circleBufferName;
     gs_circleContext.program = ProgramWrapper::CreateProgramByCodePath("resource/Shader/circle.vertex", "resource/Shader/circle.fragment");
     JUMP_IF_FAIL(gs_circleContext.program > 0);
 
@@ -127,9 +104,7 @@ void UpdateUniformInProgram()
 void DrawCircle()
 {
     glUseProgram(gs_circleContext.program);
-    glBindVertexArray(gs_circleContext.vertexObjName);
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(gs_circleContext.triangles.size() * sizeof(Triangle::vertices)));
-    glBindVertexArray(0);
+    gs_circleContext.pCircleMesh->DrawVAO();
 }
 
 void FirstCircle()
@@ -145,5 +120,10 @@ void FirstCircle()
     DrawCircle();
 }
 
-RegisterUniqueFrameFeaturetest(FirstCircle);
+void TestMesh_Circle()
+{
+    FirstCircle();
+}
+
+RegisterUniqueFrameFeaturetest(TestMesh_Circle);
 ANONYMOUS_SCOPE_END

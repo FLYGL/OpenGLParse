@@ -3,9 +3,11 @@
 #include <vector>
 #include <assert.h>
 
-template<MeshStorageType MeshStorageTypeValue,typename PositionType, typename ColorType, typename NormalType>
+template<MeshStorageType MeshStorageTypeValue = MeshStorageType::MIX,
+    typename PositionType = glm::vec3, typename ColorType = glm::vec3, typename NormalType = glm::vec3>
 class MakeMeshHelper
 {
+    using MeshMemStorageValue = MeshMemStorage<MeshStorageTypeValue, PositionType, ColorType, NormalType>;
 public:
     MakeMeshHelper() = default;
     ~MakeMeshHelper() = default;
@@ -19,12 +21,24 @@ public:
         m_bMaking = true;
     }
 
-    Mesh<MeshStorageTypeValue, PositionType, ColorType, NormalType> MakeMeshEnd()
+    Mesh<MeshMemStorageValue>* MakeMeshEnd()
     {
-        Mesh<MeshStorageTypeValue, PositionType, ColorType, NormalType> resultMesh;
-        resultMesh.MakeMesh(m_positions, m_colors, m_normals);
+        bool bRetCode = false;
+        Mesh<MeshMemStorageValue>* pResultMesh = nullptr;
+        
+        pResultMesh = new Mesh<MeshMemStorageValue>();
+        JUMP_IF_FAIL(pResultMesh);
+
+        bRetCode = pResultMesh->MakeMesh(m_positions, m_colors, m_normals);
+        JUMP_IF_FAIL(bRetCode);
+    FAIL_STATE:
+        if(!bRetCode)
+        {
+            delete pResultMesh;
+            pResultMesh = nullptr;
+        }
         m_bMaking = false;
-        return resultMesh;
+        return pResultMesh;
     }
 public:
     void PushPosition(PositionType position)
