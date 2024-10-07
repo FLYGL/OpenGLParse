@@ -5,6 +5,17 @@
 //maybe threadlocal
 static std::string gs_errLog;
 
+struct ShaderContext
+{
+    GLuint  uShaderName;
+    char*   pShaderCode;
+
+    ShaderContext() : uShaderName{0}, pShaderCode{nullptr}
+    {}
+
+    void ReleaseSource();
+};
+
 void ShaderContext::ReleaseSource()
 {
     if (uShaderName > 0)
@@ -14,7 +25,7 @@ void ShaderContext::ReleaseSource()
     free(pShaderCode);
 }
 
-ShaderContext ShaderWrapper::CreateShaderContextByCodePath(GLenum eShaderType, const std::string& rShaderCodeAbPath)
+static ShaderContext CreateShaderContextByCodePath(GLenum eShaderType, const std::string& rShaderCodeAbPath)
 {
     ShaderContext resultContext;
     bool bRetCode = false;

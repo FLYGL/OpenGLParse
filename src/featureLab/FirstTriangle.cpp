@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #include "geometry/baseGeometry.hpp"
-#include "GPUCodeWrapper.hpp"
+#include "graphics/GPUCodeWrapper.hpp"
 
 struct FirstTriangleContext
 {

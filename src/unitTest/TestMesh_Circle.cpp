@@ -11,7 +11,7 @@
 #include <chrono>
 
 #include "component/FirstPersonComponent.hpp"
-#include "GPUCodeWrapper.hpp"
+#include "graphics/GPUCodeWrapper.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -125,5 +125,5 @@ void TestMesh_Circle()
     FirstCircle();
 }
 
-RegisterUniqueFrameFeaturetest(TestMesh_Circle);
+// RegisterUniqueFrameFeaturetest(TestMesh_Circle);
 ANONYMOUS_SCOPE_END

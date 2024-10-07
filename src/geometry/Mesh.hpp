@@ -5,6 +5,7 @@
 #include <array>
 #include <algorithm>
 
+#include "context/RenderContext.hpp"
 #include "MeshMemStorage.hpp"
 //what is mesh
 //1. mesh cpu storage
@@ -132,8 +133,38 @@ public:
         }
         return result; 
     }
+public:
+    //RenderContext
+    void SetMeshModelMatrix(const glm::mat<4, 4, GLfloat>& rMat4)
+    {
+        m_meshRenderContext.modelMat4 = rMat4;
+    }
+
+    auto& GetModelMatrix()
+    {
+        return m_meshRenderContext.modelMat4;
+    }
+
+    void SetMeshShaderProgram(std::shared_ptr<ShaderProgram> pShaderProgram)
+    {
+        m_meshRenderContext.pShaderProgram = pShaderProgram;
+    }
+
+    bool UseProgram()
+    {
+        return m_meshRenderContext.pShaderProgram->UseProgram();
+    }
+
+    //TODO : erase this function
+    //auto deduce type
+    auto GetProgram()
+    {
+        return m_meshRenderContext.pShaderProgram->GetProgram();
+    }
+
 private:
-   MeshMemStorageType m_meshMemStorage;
+   MeshMemStorageType   m_meshMemStorage;
+   MeshRenderContext    m_meshRenderContext;
 };
 
 typedef Mesh<MeshMemStorage<MeshStorageType::MIX>> BaseMesh;

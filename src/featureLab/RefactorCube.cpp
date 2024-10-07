@@ -10,7 +10,7 @@
 
 #include "component/FirstPersonComponent.hpp"
 #include "geometry/baseGeometry.hpp"
-#include "GPUCodeWrapper.hpp"
+#include "graphics/GPUCodeWrapper.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
