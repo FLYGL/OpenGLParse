@@ -78,17 +78,17 @@ public:
         m_nNormalTypeOffset = -1;
         if (eMeshDataType & MeshDataType::POSITION)
         {
-            m_nPositionTypeOffset = m_uBytesPerVertex;
+            m_nPositionTypeOffset = static_cast<int>(m_uBytesPerVertex);
             m_uBytesPerVertex += sizeof(PositionType);
         }
         if (eMeshDataType & MeshDataType::COLOR)
         {
-            m_nColorTypeOffset = m_uBytesPerVertex;
+            m_nColorTypeOffset = static_cast<int>(m_uBytesPerVertex);
             m_uBytesPerVertex += sizeof(ColorType);
         }
         if (eMeshDataType & MeshDataType::NORMAL)
         {
-            m_nNormalTypeOffset = m_uBytesPerVertex;
+            m_nNormalTypeOffset = static_cast<int>(m_uBytesPerVertex);
             m_uBytesPerVertex += sizeof(NormalType);
         }
         assert(m_uBytesPerVertex > 0);
@@ -142,7 +142,7 @@ public:
     std::array<OpenGL_VAO_AttributeInfo,3> GetAttributeInfos()
     {
         std::array<OpenGL_VAO_AttributeInfo,3> attributeInfos;
-        GLsizei uStride = (m_eDataTypes & MeshDataType::POSITION) == MeshDataType::POSITION ? 0 : m_uBytesPerVertex;
+        GLsizei uStride = (m_eDataTypes & MeshDataType::POSITION) == MeshDataType::POSITION ? 0 : static_cast<GLsizei>(m_uBytesPerVertex);
         
         attributeInfos[OPENGL_VAO_POSITION_LOCATION].uAttrLocation = OPENGL_VAO_POSITION_LOCATION;
         if(m_nPositionTypeOffset >= 0)
@@ -225,17 +225,17 @@ public:
         m_nNormalTypeOffset = -1;
         if (eMeshDataType & MeshDataType::POSITION)
         {
-            m_nPositionTypeOffset = uBytes;
+            m_nPositionTypeOffset = static_cast<int>(uBytes);
             uBytes += sizeof(PositionType) * uVertexCount;
         }
         if (eMeshDataType & MeshDataType::COLOR)
         {
-            m_nColorTypeOffset = uBytes;
+            m_nColorTypeOffset = static_cast<int>(uBytes);
             uBytes += sizeof(ColorType) * uVertexCount;
         }
         if (eMeshDataType & MeshDataType::NORMAL)
         {
-            m_nNormalTypeOffset = uBytes;
+            m_nNormalTypeOffset = static_cast<int>(uBytes);
             uBytes += sizeof(NormalType) * uVertexCount;
         }
         assert(uBytes > 0);

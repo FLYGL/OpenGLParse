@@ -120,13 +120,13 @@ public:
     {
         std::array<OpenGL_VAO_AttributeInfo,4> result;
         auto attrInfos = m_meshMemStorage.GetAttributeInfos();
-        uint32_t minLength = std::min(result.size(), attrInfos.size());
-        uint32_t maxLength = std::max(result.size(), attrInfos.size());
-        for(uint32_t i = 0; i < minLength; ++i)
+        auto minLength = std::min(result.size(), attrInfos.size());
+        auto maxLength = std::max(result.size(), attrInfos.size());
+        for(auto i = 0; i < minLength; ++i)
         {
             result[i] = attrInfos[i];
         }
-        for(uint32_t i = minLength; i < maxLength; ++i)
+        for(auto i = minLength; i < maxLength; ++i)
         {
             result[i].uAttrLocation = static_cast<GLuint>(i);
             result[i].bEnable = false;

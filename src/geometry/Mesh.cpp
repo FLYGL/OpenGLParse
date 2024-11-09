@@ -1,6 +1,7 @@
 #include <framework/EasyDefine.hpp>
 #include "Mesh.hpp"
 
+#pragma warning(push)
 bool MeshBase::InitOpenGLObject()
 {
     bool bResult = false;
@@ -31,7 +32,7 @@ bool MeshBase::UnInitOpenGLObject()
         glDeleteVertexArrays(1, &m_meshVAO);
 
     bResult = true;
-FAIL_STATE:
+//FAIL_STATE:
     return bResult;
 }
 
@@ -63,6 +64,7 @@ bool MeshBase::MeshUploadGPUSync()
             rAttrInfo.eAttrComponentType,
             rAttrInfo.bNormalized,
             rAttrInfo.uStride,
+#pragma warning(disable : 4312)
             reinterpret_cast<const void*>(rAttrInfo.uFirstOffset)
         );
     }
@@ -72,7 +74,7 @@ bool MeshBase::MeshUploadGPUSync()
 
     m_bUploaded = true;
     bResult = true;
-FAIL_STATE:
+//FAIL_STATE:
     return bResult;
 }
 
@@ -83,3 +85,4 @@ bool MeshBase::DrawVAO()
     glBindVertexArray(0);
     return true;
 }
+#pragma warning(pop)
